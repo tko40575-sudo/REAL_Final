@@ -94,27 +94,67 @@
                         <i class="fa-regular fa-clock text-cyan-500/50 text-3xl group-hover:scale-110 transition-transform"></i>
                     </div>
 
-                    <div class="bg-cyan-900/20 p-5 rounded-2xl border border-cyan-500/30 flex items-center justify-between mt-4">
-                        <div class="flex-1 mr-6">
-                            <p class="text-xs text-cyan-300 mb-2 font-bold uppercase tracking-widest">Server Link (vless://)</p>
-                            <input type="password" id="vless-key-hidden" class="w-full bg-black/50 border border-cyan-500/50 rounded-xl px-4 py-3 text-sm text-cyan-100 mb-4 focus:outline-none" readonly value="Loading...">
-                            <button onclick="copyKey('vless-key-hidden')" class="w-full bg-cyan-600 hover:bg-cyan-500 text-white py-3 rounded-xl font-bold transition-all shadow-[0_5px_15px_-5px_rgba(34,211,238,0.6)] flex items-center justify-center gap-2 hover:scale-[1.02]">
-                                <i class="fa-solid fa-copy"></i> COPY VLESS LINK
-                            </button>
+                    <div class="bg-cyan-900/20 p-5 rounded-2xl border border-cyan-500/30 flex flex-col justify-between mt-4">
+                        <div class="flex justify-between items-center mb-3">
+                            <p class="text-xs text-cyan-300 font-bold uppercase tracking-widest">Server Link (vless://)</p>
+                            <button onclick="document.getElementById('setup-modal').classList.remove('hidden')" class="text-xs text-cyan-400 hover:text-white transition-colors bg-cyan-500/20 px-3 py-1.5 rounded flex items-center gap-1 border border-cyan-500/30"><i class="fa-solid fa-circle-question"></i> How to Connect?</button>
                         </div>
-                        <div id="vless-qr" class="qr-wrapper bg-white p-2 rounded-xl"></div>
+                        <div class="flex flex-col md:flex-row gap-4">
+                            <div class="flex-1">
+                                <input type="password" id="vless-key-hidden" class="w-full bg-black/50 border border-cyan-500/50 rounded-xl px-4 py-3 text-sm text-cyan-100 mb-4 focus:outline-none" readonly value="Loading...">
+                                <button onclick="copyKey('vless-key-hidden')" class="w-full bg-cyan-600 hover:bg-cyan-500 text-white py-3 rounded-xl font-bold transition-all shadow-[0_5px_15px_-5px_rgba(34,211,238,0.6)] flex items-center justify-center gap-2 hover:scale-[1.02]">
+                                    <i class="fa-solid fa-copy"></i> COPY VLESS LINK
+                                </button>
+                            </div>
+                            <div id="vless-qr" class="qr-wrapper bg-white p-2 rounded-xl self-center"></div>
+                        </div>
                     </div>
                 </div>
             </div>
 
         </div>
+
+        <div id="setup-modal" class="hidden fixed inset-0 z-[100] flex items-center justify-center p-4 bg-black/80 backdrop-blur-sm transition-opacity">
+            <div class="glass-panel p-6 rounded-3xl max-w-md w-full relative">
+                <button onclick="document.getElementById('setup-modal').classList.add('hidden')" class="absolute top-4 right-5 text-gray-500 hover:text-white transition-colors"><i class="fa-solid fa-xmark text-xl"></i></button>
+                <h3 class="text-xl font-bold text-white mb-6"><i class="fa-solid fa-download text-cyan-400 mr-2"></i> Setup Guide</h3>
+                
+                <div class="space-y-4 text-sm text-gray-300">
+                    <div class="bg-black/40 p-4 rounded-xl border border-white/5 flex gap-3 items-start">
+                        <span class="bg-cyan-600 text-white px-2 py-0.5 rounded text-xs font-bold mt-0.5">1</span>
+                        <div>
+                            <p class="font-bold text-white mb-1">Download App</p>
+                            <p class="text-xs text-gray-400">Android: <b>V2RayNG</b><br>iOS: <b>V2Ray Tun</b> or <b>Streisand</b><br>PC: <b>v2rayN</b></p>
+                        </div>
+                    </div>
+                    <div class="bg-black/40 p-4 rounded-xl border border-white/5 flex gap-3 items-start">
+                        <span class="bg-cyan-600 text-white px-2 py-0.5 rounded text-xs font-bold mt-0.5">2</span>
+                        <div>
+                            <p class="font-bold text-white mb-1">Copy Link</p>
+                            <p class="text-xs text-gray-400">Click the blue <b>"COPY VLESS LINK"</b> button on your dashboard.</p>
+                        </div>
+                    </div>
+                    <div class="bg-black/40 p-4 rounded-xl border border-white/5 flex gap-3 items-start">
+                        <span class="bg-cyan-600 text-white px-2 py-0.5 rounded text-xs font-bold mt-0.5">3</span>
+                        <div>
+                            <p class="font-bold text-white mb-1">Connect</p>
+                            <p class="text-xs text-gray-400">Open your App. Tap the "+" icon and choose <b>"Import from Clipboard"</b>. Then click connect.</p>
+                        </div>
+                    </div>
+                </div>
+                
+                <a href="https://t.me/YourTelegramUsername" target="_blank" class="mt-6 w-full bg-cyan-600/20 border border-cyan-500/30 hover:bg-cyan-600/40 text-cyan-300 py-3 rounded-xl font-bold transition-all flex items-center justify-center gap-2">
+                    <i class="fa-solid fa-headset"></i> Need Help? Contact Admin
+                </a>
+            </div>
+        </div>
+
     </div>
 
     <script type="module">
         import { initializeApp } from "https://www.gstatic.com/firebasejs/10.8.1/firebase-app.js";
         import { getFirestore, doc, onSnapshot, setDoc } from "https://www.gstatic.com/firebasejs/10.8.1/firebase-firestore.js";
 
-        // ✨ Device OS Detection Function
         function getDeviceOS() {
             const ua = navigator.userAgent;
             if (/android/i.test(ua)) return { name: "Android", icon: "fa-android" };
@@ -129,12 +169,11 @@
         document.getElementById('device-icon').className = `fa-brands ${currentDevice.icon} text-cyan-400`;
         document.getElementById('device-text').innerText = currentDevice.name;
 
-        // Firebase Config
         const firebaseConfig = { apiKey: "AIzaSyCiibkAoIbkTAfZRILSfx3qA2SjNFEdB5U", authDomain: "vpn-pane.firebaseapp.com", projectId: "vpn-pane", storageBucket: "vpn-pane.firebasestorage.app", messagingSenderId: "1094380249696", appId: "1:1094380249696:web:d94f63c4f7170654415905" };
         const app = initializeApp(firebaseConfig);
         const db = getFirestore(app);
 
-        let vlessQR = new QRCode(document.getElementById("vless-qr"), { width: 120, height: 120, colorDark : "#000000", colorLight : "#ffffff" });
+        let vlessQR = new QRCode(document.getElementById("vless-qr"), { width: 100, height: 100, colorDark : "#000000", colorLight : "#ffffff" });
 
         function updateProgress(used, total) {
             document.getElementById('vless-used-show').innerText = used; document.getElementById('vless-total-show').innerText = total;
@@ -145,7 +184,6 @@
             }, 600);
         }
 
-        // Advanced Copy Logic
         window.copyKey = function(elementId) {
             const inputElement = document.getElementById(elementId);
             inputElement.type = 'text'; inputElement.select(); inputElement.setSelectionRange(0, 99999); 
@@ -159,14 +197,11 @@
             }).catch(err => { alert("Failed to copy automatically."); inputElement.type = 'password'; });
         };
 
-        // Fetch User Data via URL Param
         window.addEventListener('load', () => {
-            const overlay = document.getElementById('startup-overlay');
-            const mainWrapper = document.getElementById('main-wrapper');
-            const errorSection = document.getElementById('error-section');
-            const dashboardSection = document.getElementById('dashboard-section');
-
-            const urlParams = newSearchParams(window.location.search);
+            const overlay = document.getElementById('startup-overlay'); const mainWrapper = document.getElementById('main-wrapper'); const errorSection = document.getElementById('error-section'); const dashboardSection = document.getElementById('dashboard-section');
+            
+            // ⚠️ FIXED: Correctly initialize URLSearchParams
+            const urlParams = new URLSearchParams(window.location.search); 
             let rawId = urlParams.get('id');
 
             if(!rawId) {
@@ -179,18 +214,13 @@
             onSnapshot(doc(db, "users", TARGET_USER_ID), (docSnap) => {
                 if (docSnap.exists()) {
                     const data = docSnap.data();
-                    
-                    // ✨ Write live device tracking data to Firebase
-                    setDoc(doc(db, "users", TARGET_USER_ID), { 
-                        lastActiveVless: new Date().toISOString(), 
-                        deviceOS: currentDevice.name 
-                    }, { merge: true });
+                    setDoc(doc(db, "users", TARGET_USER_ID), { lastActiveVless: new Date().toISOString(), deviceOS: currentDevice.name }, { merge: true });
 
                     document.getElementById('display-name').innerText = data.displayName || TARGET_USER_ID;
                     updateProgress(data.vlessUsedGB || 0, data.vlessTotalGB || 0);
                     document.getElementById('vless-expire-show').innerText = data.vlessExpireDate || "No Date";
                     document.getElementById('vless-key-hidden').value = data.vlessKey || "No Link Assigned";
-                    if(data.vlessKey) vlessQR.makeCode(data.vlessKey); else vlessQR.clear();
+                    if(data.vlessKey) { vlessQR.clear(); vlessQR.makeCode(data.vlessKey); } else { vlessQR.clear(); }
                     
                     setTimeout(() => { overlay.style.opacity = '0'; setTimeout(() => { overlay.style.visibility = 'hidden'; dashboardSection.classList.remove('hidden'); mainWrapper.classList.remove('opacity-0'); }, 800); }, 1800);
                 } else {
