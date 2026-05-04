@@ -8,12 +8,34 @@
     <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
     <style>
         @import url('https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;600;800&display=swap');
-        body { background-color: #050505; background-image: radial-gradient(circle at 50% 0%, #1a1a2e 0%, #050505 70%); color: white; font-family: 'Outfit', sans-serif; min-height: 100vh; }
-        .glass-panel { background: rgba(20, 20, 25, 0.6); border: 1px solid rgba(255, 255, 255, 0.05); backdrop-filter: blur(20px); box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.5); }
-        .expandable-content { max-height: 0; overflow: hidden; transition: max-height 0.5s ease-in-out, opacity 0.3s ease-in-out; opacity: 0; }
-        .expandable-content.open { max-height: 500px; opacity: 1; }
-        .chevron { transition: transform 0.3s ease; } .chevron.open { transform: rotate(180deg); }
-        ::-webkit-scrollbar { width: 8px; } ::-webkit-scrollbar-track { background: #050505; } ::-webkit-scrollbar-thumb { background: #ef4444; border-radius: 10px; }
+        body { 
+            background-color: #050505; 
+            background-image: radial-gradient(circle at 50% 0%, #1a1a2e 0%, #050505 70%); 
+            color: white; 
+            font-family: 'Outfit', sans-serif; 
+            min-height: 100vh; 
+        }
+        .glass-panel { 
+            background: rgba(20, 20, 25, 0.6); 
+            border: 1px solid rgba(255, 255, 255, 0.05); 
+            backdrop-filter: blur(20px); 
+            box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.5); 
+        }
+        .expandable-content { 
+            max-height: 0; 
+            overflow: hidden; 
+            transition: max-height 0.5s ease-in-out, opacity 0.3s ease-in-out; 
+            opacity: 0; 
+        }
+        .expandable-content.open { 
+            max-height: 500px; 
+            opacity: 1; 
+        }
+        .chevron { transition: transform 0.3s ease; }
+        .chevron.open { transform: rotate(180deg); }
+        ::-webkit-scrollbar { width: 8px; }
+        ::-webkit-scrollbar-track { background: #050505; }
+        ::-webkit-scrollbar-thumb { background: #ef4444; border-radius: 10px; }
         
         /* Table styles */
         .glass-table { width: 100%; border-collapse: collapse; text-align: left; }
@@ -31,11 +53,12 @@
 
     <div id="main-content" class="w-full max-w-6xl flex flex-col space-y-6">
         
-        <!-- HEADER -->
         <div class="flex flex-col md:flex-row items-center justify-between mb-2 mt-4 glass-panel p-6 rounded-3xl border-l-4 border-red-500 relative overflow-hidden">
             <div class="absolute -left-20 -top-20 w-40 h-40 bg-red-600/20 rounded-full blur-3xl"></div>
             <div class="flex items-center gap-4 z-10">
-                <div class="w-14 h-14 bg-gradient-to-br from-red-600 to-orange-600 rounded-full flex items-center justify-center shadow-[0_0_20px_rgba(239,68,68,0.4)]"><i class="fa-solid fa-server text-2xl text-white"></i></div>
+                <div class="w-14 h-14 bg-gradient-to-br from-red-600 to-orange-600 rounded-full flex items-center justify-center shadow-[0_0_20px_rgba(239,68,68,0.4)]">
+                    <i class="fa-solid fa-server text-2xl text-white"></i>
+                </div>
                 <div>
                     <h1 class="text-3xl font-extrabold text-transparent bg-clip-text bg-gradient-to-r from-red-400 to-orange-300 tracking-tight">VVIP ADMIN</h1>
                     <p class="text-sm text-gray-400 uppercase tracking-widest">Master Control Center</p>
@@ -47,22 +70,35 @@
             </div>
         </div>
 
-        <!-- ================= TAB 1: MANAGE USER & SETTINGS ================= -->
         <div id="tab-manage-content" class="space-y-6">
             
-            <!-- SECURITY / API SETTINGS -->
             <div class="glass-panel rounded-3xl overflow-hidden border border-red-900/30">
                 <button id="security-trigger" class="w-full p-6 flex justify-between items-center bg-gradient-to-r from-red-900/20 to-transparent hover:bg-red-900/40 transition-colors group">
-                    <div class="flex items-center gap-3"><i class="fa-solid fa-lock text-red-400"></i><h2 class="text-lg font-bold text-gray-200 tracking-wide">Server API Settings (Auto Sync)</h2></div>
+                    <div class="flex items-center gap-3">
+                        <i class="fa-solid fa-lock text-red-400"></i>
+                        <h2 class="text-lg font-bold text-gray-200 tracking-wide">Server API Settings (Auto Sync)</h2>
+                    </div>
                     <i id="security-chevron" class="fa-solid fa-chevron-down text-gray-500 chevron"></i>
                 </button>
                 <div id="security-content" class="expandable-content bg-black/20">
                     <div class="p-6 pt-2">
                         <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
-                            <div class="bg-black/40 p-4 rounded-2xl border border-white/5"><label class="text-xs text-gray-400 uppercase tracking-widest mb-1 block">Outline API URL</label><input type="text" id="cfg-outline" class="w-full bg-black/50 border border-gray-700/50 rounded-xl px-4 py-2 text-sm text-white focus:outline-none focus:border-red-500"></div>
-                            <div class="bg-black/40 p-4 rounded-2xl border border-white/5"><label class="text-xs text-gray-400 uppercase tracking-widest mb-1 block">X-UI (VLESS) URL</label><input type="text" id="cfg-xui-url" class="w-full bg-black/50 border border-gray-700/50 rounded-xl px-4 py-2 text-sm text-white focus:outline-none focus:border-red-500"></div>
-                            <div class="bg-black/40 p-4 rounded-2xl border border-white/5"><label class="text-xs text-gray-400 uppercase tracking-widest mb-1 block">X-UI Username</label><input type="text" id="cfg-xui-user" class="w-full bg-black/50 border border-gray-700/50 rounded-xl px-4 py-2 text-sm text-white focus:outline-none focus:border-red-500"></div>
-                            <div class="bg-black/40 p-4 rounded-2xl border border-white/5"><label class="text-xs text-gray-400 uppercase tracking-widest mb-1 block">X-UI Password</label><input type="password" id="cfg-xui-pass" class="w-full bg-black/50 border border-gray-700/50 rounded-xl px-4 py-2 text-sm text-white focus:outline-none focus:border-red-500"></div>
+                            <div class="bg-black/40 p-4 rounded-2xl border border-white/5">
+                                <label class="text-xs text-gray-400 uppercase tracking-widest mb-1 block">Outline API URL</label>
+                                <input type="text" id="cfg-outline" class="w-full bg-black/50 border border-gray-700/50 rounded-xl px-4 py-2 text-sm text-white focus:outline-none focus:border-red-500">
+                            </div>
+                            <div class="bg-black/40 p-4 rounded-2xl border border-white/5">
+                                <label class="text-xs text-gray-400 uppercase tracking-widest mb-1 block">X-UI (VLESS) URL</label>
+                                <input type="text" id="cfg-xui-url" class="w-full bg-black/50 border border-gray-700/50 rounded-xl px-4 py-2 text-sm text-white focus:outline-none focus:border-red-500">
+                            </div>
+                            <div class="bg-black/40 p-4 rounded-2xl border border-white/5">
+                                <label class="text-xs text-gray-400 uppercase tracking-widest mb-1 block">X-UI Username</label>
+                                <input type="text" id="cfg-xui-user" class="w-full bg-black/50 border border-gray-700/50 rounded-xl px-4 py-2 text-sm text-white focus:outline-none focus:border-red-500">
+                            </div>
+                            <div class="bg-black/40 p-4 rounded-2xl border border-white/5">
+                                <label class="text-xs text-gray-400 uppercase tracking-widest mb-1 block">X-UI Password</label>
+                                <input type="password" id="cfg-xui-pass" class="w-full bg-black/50 border border-gray-700/50 rounded-xl px-4 py-2 text-sm text-white focus:outline-none focus:border-red-500">
+                            </div>
                         </div>
                         <div class="mt-4 flex items-center">
                             <button id="btn-save-cfg" class="bg-gradient-to-r from-red-600 to-orange-600 hover:from-red-500 hover:to-orange-500 text-white font-bold py-2 px-6 rounded-xl transition-all shadow-lg">SAVE SERVER CONFIG</button>
@@ -72,60 +108,88 @@
                 </div>
             </div>
 
-            <!-- USER SEARCH -->
             <div class="glass-panel p-6 rounded-3xl relative overflow-hidden">
                 <h2 class="text-lg font-bold mb-4 text-gray-200 tracking-wide border-b border-gray-800 pb-2"><i class="fa-solid fa-user-plus text-indigo-400 mr-2"></i> Add / Search User</h2>
                 <div class="flex flex-col md:flex-row space-y-4 md:space-y-0 md:space-x-4">
                     <input type="text" id="admin-username" placeholder="Enter Login ID (e.g. FREE5)" class="w-full bg-black/40 border border-gray-700/50 rounded-2xl px-4 py-4 text-white focus:outline-none focus:border-indigo-500">
-                    <button id="btn-fetch" class="bg-indigo-600 hover:bg-indigo-500 text-white font-bold py-4 px-8 rounded-2xl shadow-lg transition-all flex items-center justify-center gap-2">FETCH <i class="fa-solid fa-arrow-right"></i></button>
+                    <button id="btn-fetch" class="bg-indigo-600 hover:bg-indigo-500 text-white font-bold py-4 px-8 rounded-2xl shadow-lg transition-all flex items-center justify-center gap-2">
+                        FETCH <i class="fa-solid fa-arrow-right"></i>
+                    </button>
                 </div>
                 <p id="status-msg" class="mt-4 text-sm hidden"></p>
             </div>
 
-            <!-- USER EDITOR -->
             <div id="editor-section" class="glass-panel p-6 rounded-3xl hidden relative overflow-hidden transition-all duration-500 opacity-0 transform translate-y-4">
                 <div class="grid grid-cols-1 md:grid-cols-2 gap-6 z-10 relative">
+                    
                     <div class="space-y-4 bg-black/30 p-5 rounded-2xl border border-indigo-500/20">
                         <h3 class="font-bold text-indigo-300"><i class="fa-solid fa-shield-halved mr-2"></i> Outline Config</h3>
-                        <div><label class="text-xs text-gray-400 uppercase">Access Key (ss://)</label><input type="text" id="out-key" class="w-full bg-black/50 border border-indigo-700/50 rounded-xl px-4 py-2 text-sm text-white focus:outline-none focus:border-indigo-400 mt-1"></div>
-                        <div><label class="text-xs text-gray-400 uppercase">Total GB Allowed</label><input type="number" id="out-total" class="w-full bg-black/50 border border-gray-700/50 rounded-xl px-4 py-2 text-white focus:outline-none focus:border-indigo-400 mt-1"></div>
-                        <div><label class="text-xs text-gray-400 uppercase">Expire Date</label><input type="date" id="out-expire" class="w-full bg-black/50 border border-gray-700/50 rounded-xl px-4 py-2 text-white focus:outline-none focus:border-indigo-400 mt-1" style="color-scheme:dark;"></div>
+                        <div>
+                            <label class="text-xs text-gray-400 uppercase">Access Key (ss://)</label>
+                            <input type="text" id="out-key" class="w-full bg-black/50 border border-indigo-700/50 rounded-xl px-4 py-2 text-sm text-white focus:outline-none focus:border-indigo-400 mt-1">
+                        </div>
+                        <div>
+                            <label class="text-xs text-gray-400 uppercase">Total GB Allowed</label>
+                            <input type="number" id="out-total" class="w-full bg-black/50 border border-gray-700/50 rounded-xl px-4 py-2 text-white focus:outline-none focus:border-indigo-400 mt-1">
+                        </div>
+                        <div>
+                            <label class="text-xs text-gray-400 uppercase">Expire Date</label>
+                            <input type="date" id="out-expire" class="w-full bg-black/50 border border-gray-700/50 rounded-xl px-4 py-2 text-white focus:outline-none focus:border-indigo-400 mt-1" style="color-scheme:dark;">
+                        </div>
                     </div>
+
                     <div class="space-y-4 bg-black/30 p-5 rounded-2xl border border-cyan-500/20">
                         <h3 class="font-bold text-cyan-300"><i class="fa-solid fa-network-wired mr-2"></i> VLESS Config</h3>
-                        <div><label class="text-xs text-gray-400 uppercase">VLESS Link (vless://)</label><input type="text" id="vless-key" class="w-full bg-black/50 border border-cyan-700/50 rounded-xl px-4 py-2 text-sm text-white focus:outline-none focus:border-cyan-400 mt-1"></div>
-                        <div><label class="text-xs text-gray-400 uppercase">Total GB Allowed</label><input type="number" id="vless-total" class="w-full bg-black/50 border border-gray-700/50 rounded-xl px-4 py-2 text-white focus:outline-none focus:border-cyan-400 mt-1"></div>
-                        <div><label class="text-xs text-gray-400 uppercase">Expire Date</label><input type="date" id="vless-expire" class="w-full bg-black/50 border border-gray-700/50 rounded-xl px-4 py-2 text-white focus:outline-none focus:border-cyan-400 mt-1" style="color-scheme:dark;"></div>
+                        <div>
+                            <label class="text-xs text-gray-400 uppercase">VLESS Link (vless://)</label>
+                            <input type="text" id="vless-key" class="w-full bg-black/50 border border-cyan-700/50 rounded-xl px-4 py-2 text-sm text-white focus:outline-none focus:border-cyan-400 mt-1">
+                        </div>
+                        <div>
+                            <label class="text-xs text-gray-400 uppercase">Total GB Allowed</label>
+                            <input type="number" id="vless-total" class="w-full bg-black/50 border border-gray-700/50 rounded-xl px-4 py-2 text-white focus:outline-none focus:border-cyan-400 mt-1">
+                        </div>
+                        <div>
+                            <label class="text-xs text-gray-400 uppercase">Expire Date</label>
+                            <input type="date" id="vless-expire" class="w-full bg-black/50 border border-gray-700/50 rounded-xl px-4 py-2 text-white focus:outline-none focus:border-cyan-400 mt-1" style="color-scheme:dark;">
+                        </div>
                     </div>
                 </div>
-                <button id="btn-save" class="w-full mt-6 bg-gradient-to-r from-emerald-600 to-teal-600 hover:from-emerald-500 hover:to-teal-500 text-white font-bold py-4 rounded-2xl shadow-lg text-lg transition-all flex items-center justify-center gap-2"><i class="fa-solid fa-cloud-arrow-up"></i> COMMIT CHANGES TO DATABASE</button>
+                
+                <button id="btn-save" class="w-full mt-6 bg-gradient-to-r from-emerald-600 to-teal-600 hover:from-emerald-500 hover:to-teal-500 text-white font-bold py-4 rounded-2xl shadow-lg text-lg transition-all flex items-center justify-center gap-2">
+                    <i class="fa-solid fa-cloud-arrow-up"></i> COMMIT CHANGES TO DATABASE
+                </button>
 
-                <!-- AUTO GENERATED LINK -->
                 <div class="bg-indigo-900/20 border border-indigo-500/30 p-5 rounded-2xl mt-6 hidden" id="link-generator">
                     <p class="text-xs text-indigo-300 mb-4 font-bold uppercase tracking-widest"><i class="fa-solid fa-link mr-1"></i> Direct Client Access Links</p>
+                    
                     <div class="space-y-4">
-                        <!-- Outline Link -->
                         <div>
                             <label class="text-xs text-indigo-400 mb-1 block uppercase">Outline Portal Link</label>
                             <div class="flex items-center gap-3">
                                 <input type="text" id="auto-link-outline" class="w-full bg-black/60 border border-indigo-500/50 rounded-xl px-4 py-3 text-sm text-indigo-100 focus:outline-none" readonly>
-                                <button id="btn-copy-link-outline" class="bg-indigo-600 hover:bg-indigo-500 text-white px-6 py-3 rounded-xl font-bold transition-all shadow-md"><i class="fa-solid fa-copy"></i></button>
+                                <button id="btn-copy-link-outline" class="bg-indigo-600 hover:bg-indigo-500 text-white px-6 py-3 rounded-xl font-bold transition-all shadow-md">
+                                    <i class="fa-solid fa-copy"></i>
+                                </button>
                             </div>
                         </div>
-                        <!-- VLESS Link -->
+
                         <div>
                             <label class="text-xs text-cyan-400 mb-1 block uppercase">VLESS Portal Link</label>
                             <div class="flex items-center gap-3">
                                 <input type="text" id="auto-link-vless" class="w-full bg-black/60 border border-cyan-500/50 rounded-xl px-4 py-3 text-sm text-cyan-100 focus:outline-none" readonly>
-                                <button id="btn-copy-link-vless" class="bg-cyan-600 hover:bg-cyan-500 text-white px-6 py-3 rounded-xl font-bold transition-all shadow-md"><i class="fa-solid fa-copy"></i></button>
+                                <button id="btn-copy-link-vless" class="bg-cyan-600 hover:bg-cyan-500 text-white px-6 py-3 rounded-xl font-bold transition-all shadow-md">
+                                    <i class="fa-solid fa-copy"></i>
+                                </button>
                             </div>
                         </div>
-                        <!-- General Dashboard Link -->
+
                         <div>
                             <label class="text-xs text-purple-400 mb-1 block uppercase">General Dashboard Link (Both)</label>
                             <div class="flex items-center gap-3">
                                 <input type="text" id="auto-link-user" class="w-full bg-black/60 border border-purple-500/50 rounded-xl px-4 py-3 text-sm text-purple-100 focus:outline-none" readonly>
-                                <button id="btn-copy-link-user" class="bg-purple-600 hover:bg-purple-500 text-white px-6 py-3 rounded-xl font-bold transition-all shadow-md"><i class="fa-solid fa-copy"></i></button>
+                                <button id="btn-copy-link-user" class="bg-purple-600 hover:bg-purple-500 text-white px-6 py-3 rounded-xl font-bold transition-all shadow-md">
+                                    <i class="fa-solid fa-copy"></i>
+                                </button>
                             </div>
                         </div>
                     </div>
@@ -133,10 +197,8 @@
             </div>
         </div>
 
-        <!-- ================= TAB 2: ANALYTICS & ALL USERS ================= -->
         <div id="tab-list-content" class="space-y-6 hidden">
             
-            <!-- Analytics Cards -->
             <div class="grid grid-cols-2 md:grid-cols-4 gap-4">
                 <div class="bg-black/40 border border-white/5 p-5 rounded-2xl">
                     <p class="text-xs text-gray-400 uppercase tracking-widest mb-1"><i class="fa-solid fa-users text-indigo-400 mr-1"></i> Total Users</p>
@@ -156,7 +218,6 @@
                 </div>
             </div>
 
-            <!-- All Users Table -->
             <div class="glass-panel p-6 rounded-3xl overflow-hidden">
                 <div class="flex justify-between items-center mb-6 border-b border-gray-800 pb-4">
                     <h2 class="text-lg font-bold text-gray-200 tracking-wide"><i class="fa-solid fa-database text-red-400 mr-2"></i> Users Database</h2>
@@ -180,85 +241,181 @@
                     </table>
                 </div>
             </div>
+
         </div>
+
     </div>
 
-    <!-- ================= FIREBASE SCRIPT ================= -->
     <script type="module">
         import { initializeApp } from "https://www.gstatic.com/firebasejs/10.8.1/firebase-app.js";
         import { getFirestore, doc, getDoc, setDoc, collection, getDocs } from "https://www.gstatic.com/firebasejs/10.8.1/firebase-firestore.js";
 
-        // ⚠️ Replace with your actual Firebase config
-        const firebaseConfig = { apiKey: "AIzaSyCiibkAoIbkTAfZRILSfx3qA2SjNFEdB5U", authDomain: "vpn-pane.firebaseapp.com", projectId: "vpn-pane", storageBucket: "vpn-pane.firebasestorage.app", messagingSenderId: "1094380249696", appId: "1:1094380249696:web:d94f63c4f7170654415905" };
-        const app = initializeApp(firebaseConfig); const db = getFirestore(app);
+        // Initialize Firebase
+        const firebaseConfig = { 
+            apiKey: "AIzaSyCiibkAoIbkTAfZRILSfx3qA2SjNFEdB5U", 
+            authDomain: "vpn-pane.firebaseapp.com", 
+            projectId: "vpn-pane", 
+            storageBucket: "vpn-pane.firebasestorage.app", 
+            messagingSenderId: "1094380249696", 
+            appId: "1:1094380249696:web:d94f63c4f7170654415905" 
+        };
+        const app = initializeApp(firebaseConfig);
+        const db = getFirestore(app);
 
         // Navigation Tabs Logic
-        const navManage = document.getElementById('nav-manage'); const navList = document.getElementById('nav-list');
-        const tabManageContent = document.getElementById('tab-manage-content'); const tabListContent = document.getElementById('tab-list-content');
+        const navManage = document.getElementById('nav-manage');
+        const navList = document.getElementById('nav-list');
+        const tabManageContent = document.getElementById('tab-manage-content');
+        const tabListContent = document.getElementById('tab-list-content');
 
         navManage.addEventListener('click', () => {
             navManage.className = "bg-red-600 text-white px-5 py-2.5 rounded-xl text-sm font-bold shadow-lg transition-all";
             navList.className = "bg-black/50 text-gray-400 hover:text-white border border-white/10 px-5 py-2.5 rounded-xl text-sm font-bold transition-all";
-            tabManageContent.classList.remove('hidden'); tabListContent.classList.add('hidden');
+            tabManageContent.classList.remove('hidden');
+            tabListContent.classList.add('hidden');
         });
 
         navList.addEventListener('click', () => {
             navList.className = "bg-red-600 text-white px-5 py-2.5 rounded-xl text-sm font-bold shadow-lg transition-all";
             navManage.className = "bg-black/50 text-gray-400 hover:text-white border border-white/10 px-5 py-2.5 rounded-xl text-sm font-bold transition-all";
-            tabListContent.classList.remove('hidden'); tabManageContent.classList.add('hidden');
-            loadAllUsers(); 
+            tabListContent.classList.remove('hidden');
+            tabManageContent.classList.add('hidden');
+            loadAllUsers(); // Load table when clicked
         });
 
         // Security Panel Toggle
-        document.getElementById('security-trigger').addEventListener('click', () => { document.getElementById('security-content').classList.toggle('open'); document.getElementById('security-chevron').classList.toggle('open'); });
+        document.getElementById('security-trigger').addEventListener('click', () => { 
+            document.getElementById('security-content').classList.toggle('open'); 
+            document.getElementById('security-chevron').classList.toggle('open'); 
+        });
 
-        // Load & Save Admin Configs
-        async function loadConfigs() { const snap = await getDoc(doc(db, "admin_config", "server_api")); if (snap.exists()) { const d = snap.data(); document.getElementById('cfg-outline').value = d.outline_url || ""; document.getElementById('cfg-xui-url').value = d.xui_url || ""; document.getElementById('cfg-xui-user').value = d.xui_user || ""; document.getElementById('cfg-xui-pass').value = d.xui_pass || ""; } }
+        // Load Admin Configs
+        async function loadConfigs() {
+            const snap = await getDoc(doc(db, "admin_config", "server_api"));
+            if (snap.exists()) {
+                const d = snap.data();
+                document.getElementById('cfg-outline').value = d.outline_url || ""; 
+                document.getElementById('cfg-xui-url').value = d.xui_url || ""; 
+                document.getElementById('cfg-xui-user').value = d.xui_user || ""; 
+                document.getElementById('cfg-xui-pass').value = d.xui_pass || "";
+            }
+        }
         loadConfigs();
 
-        document.getElementById('btn-save-cfg').addEventListener('click', async () => { const btn = document.getElementById('btn-save-cfg'); btn.innerHTML = '<i class="fa-solid fa-spinner fa-spin"></i> SAVING...'; await setDoc(doc(db, "admin_config", "server_api"), { outline_url: document.getElementById('cfg-outline').value.trim(), xui_url: document.getElementById('cfg-xui-url').value.trim(), xui_user: document.getElementById('cfg-xui-user').value.trim(), xui_pass: document.getElementById('cfg-xui-pass').value.trim() }, { merge: true }); btn.innerText = "SAVE SERVER CONFIG"; const msg = document.getElementById('cfg-msg'); msg.classList.remove('hidden'); setTimeout(() => msg.classList.add('hidden'), 3000); });
+        // Save Admin Configs
+        document.getElementById('btn-save-cfg').addEventListener('click', async () => {
+            const btn = document.getElementById('btn-save-cfg');
+            btn.innerHTML = '<i class="fa-solid fa-spinner fa-spin"></i> SAVING...';
+            await setDoc(doc(db, "admin_config", "server_api"), { 
+                outline_url: document.getElementById('cfg-outline').value.trim(), 
+                xui_url: document.getElementById('cfg-xui-url').value.trim(), 
+                xui_user: document.getElementById('cfg-xui-user').value.trim(), 
+                xui_pass: document.getElementById('cfg-xui-pass').value.trim() 
+            }, { merge: true });
+            
+            btn.innerText = "SAVE SERVER CONFIG";
+            const msg = document.getElementById('cfg-msg'); 
+            msg.classList.remove('hidden'); 
+            setTimeout(() => msg.classList.add('hidden'), 3000);
+        });
 
-        // Fetch User Data for Editing
+        // Fetch User Data
         document.getElementById('btn-fetch').addEventListener('click', async () => {
-            const username = document.getElementById('admin-username').value.trim().toUpperCase(); if(!username) return;
-            document.getElementById('admin-username').value = username; const statusMsg = document.getElementById('status-msg'); const editorSec = document.getElementById('editor-section');
-            statusMsg.classList.remove('hidden'); statusMsg.className = "mt-4 text-sm bg-indigo-500/10 text-indigo-400 px-4 py-2 rounded-lg border border-indigo-500/20 inline-block"; statusMsg.innerHTML = '<i class="fa-solid fa-spinner fa-spin mr-2"></i> Fetching data...';
+            const username = document.getElementById('admin-username').value.trim().toUpperCase(); 
+            if(!username) return;
+            
+            document.getElementById('admin-username').value = username; 
+            const statusMsg = document.getElementById('status-msg');
+            const editorSec = document.getElementById('editor-section');
+            
+            statusMsg.classList.remove('hidden'); 
+            statusMsg.className = "mt-4 text-sm bg-indigo-500/10 text-indigo-400 px-4 py-2 rounded-lg border border-indigo-500/20 inline-block";
+            statusMsg.innerHTML = '<i class="fa-solid fa-spinner fa-spin mr-2"></i> Fetching data...';
+            
             editorSec.classList.add('opacity-0', 'translate-y-4');
 
             const docSnap = await getDoc(doc(db, "users", username));
             if (docSnap.exists()) {
                 const data = docSnap.data();
-                statusMsg.innerHTML = `<i class="fa-solid fa-check mr-2"></i> Loaded existing user: <b class="text-white">${username}</b>`; statusMsg.className = "mt-4 text-sm bg-emerald-500/10 text-emerald-400 px-4 py-2 rounded-lg border border-emerald-500/20 inline-block";
-                document.getElementById('out-key').value = data.outlineKey || ""; document.getElementById('out-total').value = data.outlineTotalGB || 0; document.getElementById('out-expire').value = data.outlineExpireDate || "";
-                document.getElementById('vless-key').value = data.vlessKey || ""; document.getElementById('vless-total').value = data.vlessTotalGB || 0; document.getElementById('vless-expire').value = data.vlessExpireDate || "";
+                statusMsg.innerHTML = `<i class="fa-solid fa-check mr-2"></i> Loaded existing user: <b class="text-white">${username}</b>`;
+                statusMsg.className = "mt-4 text-sm bg-emerald-500/10 text-emerald-400 px-4 py-2 rounded-lg border border-emerald-500/20 inline-block";
+                
+                document.getElementById('out-key').value = data.outlineKey || ""; 
+                document.getElementById('out-total').value = data.outlineTotalGB || 0; 
+                document.getElementById('out-expire').value = data.outlineExpireDate || "";
+                document.getElementById('vless-key').value = data.vlessKey || ""; 
+                document.getElementById('vless-total').value = data.vlessTotalGB || 0; 
+                document.getElementById('vless-expire').value = data.vlessExpireDate || "";
             } else {
-                statusMsg.innerHTML = `<i class="fa-solid fa-user-plus mr-2"></i> Creating new user profile for: <b class="text-white">${username}</b>`; statusMsg.className = "mt-4 text-sm bg-orange-500/10 text-orange-400 px-4 py-2 rounded-lg border border-orange-500/20 inline-block";
+                statusMsg.innerHTML = `<i class="fa-solid fa-user-plus mr-2"></i> Creating new user profile for: <b class="text-white">${username}</b>`;
+                statusMsg.className = "mt-4 text-sm bg-orange-500/10 text-orange-400 px-4 py-2 rounded-lg border border-orange-500/20 inline-block";
+                
+                // Clear fields
                 document.querySelectorAll('#editor-section input[type="text"]:not(#auto-link-outline):not(#auto-link-vless):not(#auto-link-user), #editor-section input[type="number"], #editor-section input[type="date"]').forEach(inp => inp.value = "");
             }
             
-            editorSec.classList.remove('hidden'); setTimeout(() => { editorSec.classList.remove('opacity-0', 'translate-y-4'); }, 50);
+            // Show Editor
+            editorSec.classList.remove('hidden');
+            setTimeout(() => {
+                editorSec.classList.remove('opacity-0', 'translate-y-4');
+            }, 50);
             
-            // Generate Links
-            const baseUrl = "https://tko40575-sudo.github.io/tergtt/"; // ⚠️ သင့် Link အမှန် ပြောင်းပါ
-            document.getElementById('auto-link-outline').value = baseUrl + "outline.html?id=" + username; 
+            // Generate Links pointing to REAL_Final repo
+            const baseUrl = "https://tko40575-sudo.github.io/REAL_Final/";
+            
+            document.getElementById('auto-link-outline').value = baseUrl + "outline.html?id=" + username;
             document.getElementById('auto-link-vless').value = baseUrl + "vless.html?id=" + username;
             document.getElementById('auto-link-user').value = baseUrl + "user.html?id=" + username;
             document.getElementById('link-generator').classList.remove('hidden');
         });
 
         // Setup Copy Buttons
-        function setupCopyBtn(btnId, inputId, defaultColorClass) { document.getElementById(btnId).addEventListener('click', () => { const linkInput = document.getElementById(inputId); linkInput.select(); navigator.clipboard.writeText(linkInput.value).then(() => { const btn = document.getElementById(btnId); btn.innerHTML = '<i class="fa-solid fa-check"></i>'; btn.classList.replace(defaultColorClass, 'bg-emerald-600'); setTimeout(() => { btn.innerHTML = '<i class="fa-solid fa-copy"></i>'; btn.classList.replace('bg-emerald-600', defaultColorClass); }, 2000); }); }); }
-        setupCopyBtn('btn-copy-link-outline', 'auto-link-outline', 'bg-indigo-600'); 
+        function setupCopyBtn(btnId, inputId, defaultColorClass) {
+            document.getElementById(btnId).addEventListener('click', () => {
+                const linkInput = document.getElementById(inputId);
+                linkInput.select();
+                navigator.clipboard.writeText(linkInput.value).then(() => {
+                    const btn = document.getElementById(btnId);
+                    btn.innerHTML = '<i class="fa-solid fa-check"></i>'; 
+                    btn.classList.replace(defaultColorClass, 'bg-emerald-600');
+                    setTimeout(() => { 
+                        btn.innerHTML = '<i class="fa-solid fa-copy"></i>'; 
+                        btn.classList.replace('bg-emerald-600', defaultColorClass); 
+                    }, 2000);
+                });
+            });
+        }
+
+        setupCopyBtn('btn-copy-link-outline', 'auto-link-outline', 'bg-indigo-600');
         setupCopyBtn('btn-copy-link-vless', 'auto-link-vless', 'bg-cyan-600');
         setupCopyBtn('btn-copy-link-user', 'auto-link-user', 'bg-purple-600');
 
         // Save User Data
         document.getElementById('btn-save').addEventListener('click', async () => {
-            const username = document.getElementById('admin-username').value.trim().toUpperCase(); if(!username) return alert("Please fetch a user first.");
-            const btn = document.getElementById('btn-save'); btn.innerHTML = '<i class="fa-solid fa-spinner fa-spin"></i> COMMITTING...';
-            await setDoc(doc(db, "users", username), { outlineKey: document.getElementById('out-key').value.trim(), outlineTotalGB: Number(document.getElementById('out-total').value) || 0, outlineExpireDate: document.getElementById('out-expire').value || "", vlessKey: document.getElementById('vless-key').value.trim(), vlessTotalGB: Number(document.getElementById('vless-total').value) || 0, vlessExpireDate: document.getElementById('vless-expire').value || "" }, { merge: true });
-            btn.innerHTML = '<i class="fa-solid fa-check-double"></i> SUCCESS'; btn.classList.replace('from-emerald-600', 'from-indigo-600'); btn.classList.replace('to-teal-600', 'to-blue-600');
-            setTimeout(() => { btn.innerHTML = '<i class="fa-solid fa-cloud-arrow-up"></i> COMMIT CHANGES TO DATABASE'; btn.classList.replace('from-indigo-600', 'from-emerald-600'); btn.classList.replace('to-blue-600', 'to-teal-600'); }, 2500);
+            const username = document.getElementById('admin-username').value.trim().toUpperCase();
+            if(!username) return alert("Please fetch a user first.");
+            
+            const btn = document.getElementById('btn-save'); 
+            btn.innerHTML = '<i class="fa-solid fa-spinner fa-spin"></i> COMMITTING...';
+
+            await setDoc(doc(db, "users", username), {
+                outlineKey: document.getElementById('out-key').value.trim(), 
+                outlineTotalGB: Number(document.getElementById('out-total').value) || 0, 
+                outlineExpireDate: document.getElementById('out-expire').value || "",
+                vlessKey: document.getElementById('vless-key').value.trim(), 
+                vlessTotalGB: Number(document.getElementById('vless-total').value) || 0, 
+                vlessExpireDate: document.getElementById('vless-expire').value || ""
+            }, { merge: true });
+
+            btn.innerHTML = '<i class="fa-solid fa-check-double"></i> SUCCESS'; 
+            btn.classList.replace('from-emerald-600', 'from-indigo-600');
+            btn.classList.replace('to-teal-600', 'to-blue-600');
+            
+            setTimeout(() => {
+                btn.innerHTML = '<i class="fa-solid fa-cloud-arrow-up"></i> COMMIT CHANGES TO DATABASE';
+                btn.classList.replace('from-indigo-600', 'from-emerald-600');
+                btn.classList.replace('to-blue-600', 'to-teal-600');
+            }, 2500);
         });
 
         // Load All Users & Analytics
@@ -318,12 +475,21 @@
                     `;
                 });
 
-                if(stats.total === 0) html = '<tr><td colspan="5" class="text-center text-gray-500 py-6">No users found in database.</td></tr>';
+                if(stats.total === 0) {
+                    html = '<tr><td colspan="5" class="text-center text-gray-500 py-6">No users found in database.</td></tr>';
+                }
+
                 tbody.innerHTML = html;
 
-                document.getElementById('stat-total').innerText = stats.total; document.getElementById('stat-android').innerText = stats.android; document.getElementById('stat-ios').innerText = stats.ios; document.getElementById('stat-pc').innerText = stats.pc;
+                // Update Stats Dashboard
+                document.getElementById('stat-total').innerText = stats.total;
+                document.getElementById('stat-android').innerText = stats.android;
+                document.getElementById('stat-ios').innerText = stats.ios;
+                document.getElementById('stat-pc').innerText = stats.pc;
+
             } catch (error) {
-                console.error("Error loading users:", error); tbody.innerHTML = '<tr><td colspan="5" class="text-center text-red-500 py-6">Error loading data.</td></tr>';
+                console.error("Error loading users:", error);
+                tbody.innerHTML = '<tr><td colspan="5" class="text-center text-red-500 py-6">Error loading data.</td></tr>';
             }
         }
 
@@ -331,7 +497,10 @@
 
         // Global Edit Function (from table)
         window.editUser = function(userId) {
-            navManage.click(); document.getElementById('admin-username').value = userId; document.getElementById('btn-fetch').click(); window.scrollTo({ top: 0, behavior: 'smooth' });
+            navManage.click();
+            document.getElementById('admin-username').value = userId;
+            document.getElementById('btn-fetch').click();
+            window.scrollTo({ top: 0, behavior: 'smooth' });
         };
     </script>
 </body>
