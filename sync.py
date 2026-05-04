@@ -1,0 +1,122 @@
+import time
+import requests
+import urllib3
+import firebase_admin
+from firebase_admin import credentials
+from firebase_admin import firestore
+
+# SSL Warning များကို ပိတ်ထားရန်
+urllib3.disable_warnings(urllib3.exceptions.InsecureRequestWarning)
+
+# ==========================================
+# Firebase ချိတ်ဆက်ခြင်း
+# ==========================================
+# ⚠️ serviceAccountKey.json သည် သင်၏ Firebase Project မှ ထုတ်ယူထားသော Admin Key ဖြစ်ရမည်။
+try:
+    cred = credentials.Certificate("serviceAccountKey.json")
+    firebase_admin.initialize_app(cred)
+    db = firestore.client()
+    print("[+] Firebase connected successfully.")
+except Exception as e:
+    print(f"[-] Firebase Connection Error: {e}")
+    exit(1)
+
+def get_server_configs():
+    """Admin Panel မှ ထည့်ထားသော Server Credentials များကို Firebase မှ လှမ်းယူခြင်း"""
+    try:
+        doc = db.collection("admin_config").document("server_api").get()
+        if doc.exists:
+            return doc.to_dict()
+    except Exception as e:
+        print(f"[-] Error fetching configs from Firebase: {e}")
+    return None
+
+def get_outline_usage(api_url):
+    if not api_url: return {}
+    try:
+        # Outline Metrics API သို့ လှမ်းခေါ်ခြင်း
+        res = requests.get(f"{api_url}/metrics/transfer", verify=False, timeout=10)
+        return res.json().get('bytesTransferredByUserId', {})
+    except Exception as e:
+        print(f"[-] Outline Sync Error: {e}")
+        return {}
+
+def get_xui_usage(xui_url, xui_user, xui_pass):
+    if not xui_url or not xui_user: return {}
+    try:
+        session = requests.Session()
+        # X-UI Panel သို့ Login ဝင်ခြင်း
+        login_res = session.post(f"{xui_url}/login", data={'username': xui_user, 'password': xui_pass}, timeout=10)
+        
+        if login_res.status_code != 200:
+            print("[-] X-UI Login Failed! Check Password in Admin Panel.")
+            return {}
+        
+        # Inbounds Data ကို ဆွဲယူခြင်း
+        res = session.get(f"{xui_url}/xui/API/inbounds", timeout=10)
+        inbounds = res.json().get('obj', [])
+        
+        xui_usage = {}
+        for inbound in inbounds:
+            client_stats = inbound.get('clientStats', [])
+            for client in client_stats:
+                email = client.get('email', '')
+                total_bytes = client.get('up', 0) + client.get('down', 0)
+                xui_usage[email] = total_bytes
+        return xui_usage
+    except Exception as e:
+        print(f"[-] X-UI Sync Error: {e}")
+        return {}
+
+def sync_data():
+    print("\n[*] Starting sync cycle...")
+    configs = get_server_configs()
+    
+    if not configs:
+        print("[-] ⚠️ Server Configs missing! Please login to your Admin Panel and save your Server URLs & Passwords.")
+        return
+
+    print("[*] Connecting to VPN Servers privately...")
+    outline_data = get_outline_usage(configs.get("outline_url"))
+    xui_data = get_xui_usage(configs.get("xui_url"), configs.get("xui_user"), configs.get("xui_pass"))
+    
+    print("[*] Syncing data to Firebase Database...")
+    try:
+        users_ref = db.collection('users')
+        docs = users_ref.stream()
+
+        updated_count = 0
+        for doc in docs:
+            user_id = doc.id 
+            user_data = doc.to_dict()
+            update_fields = {}
+            
+            # Outline Sync
+            # User ID ကို Outline ID အဖြစ် ယူဆသည်၊ သို့မဟုတ် outlineId field ကို သုံးသည်
+            outline_id = user_data.get('outlineId', user_id) 
+            if outline_id in outline_data:
+                used_gb = outline_data[outline_id] / (1024 ** 3)
+                update_fields['outlineUsedGB'] = round(used_gb, 3)
+
+            # X-UI (Vless) Sync
+            # User ID ကို Vless Email အဖြစ် ယူဆသည်
+            if user_id in xui_data:
+                used_gb = xui_data[user_id] / (1024 ** 3)
+                update_fields['vlessUsedGB'] = round(used_gb, 3)
+
+            # Update if there are changes
+            if update_fields:
+                users_ref.document(user_id).update(update_fields)
+                updated_count += 1
+                print(f"[+] Updated User {user_id}: {update_fields}")
+
+        print(f"[*] Sync complete! Updated {updated_count} users successfully.")
+    except Exception as e:
+        print(f"[-] Database Error during sync: {e}")
+
+if __name__ == "__main__":
+    print("🚀 Private Secure Auto-Sync Started!")
+    while True:
+        sync_data()
+        print("[*] Sleeping for 60 seconds...")
+        time.sleep(60) # ၁ မိနစ်တစ်ခါ Auto Update လုပ်မည်
