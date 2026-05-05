@@ -8,36 +8,15 @@
     <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
     <style>
         @import url('https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;600;800&display=swap');
-        body { 
-            background-color: #050505; 
-            background-image: radial-gradient(circle at 50% 0%, #1a1a2e 0%, #050505 70%); 
-            color: white; 
-            font-family: 'Outfit', sans-serif; 
-            min-height: 100vh; 
-        }
-        .glass-panel { 
-            background: rgba(20, 20, 25, 0.6); 
-            border: 1px solid rgba(255, 255, 255, 0.05); 
-            backdrop-filter: blur(20px); 
-            box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.5); 
-        }
-        .expandable-content { 
-            max-height: 0; 
-            overflow: hidden; 
-            transition: max-height 0.5s ease-in-out, opacity 0.3s ease-in-out; 
-            opacity: 0; 
-        }
-        .expandable-content.open { 
-            max-height: 500px; 
-            opacity: 1; 
-        }
+        body { background-color: #050505; background-image: radial-gradient(circle at 50% 0%, #1a1a2e 0%, #050505 70%); color: white; font-family: 'Outfit', sans-serif; min-height: 100vh; }
+        .glass-panel { background: rgba(20, 20, 25, 0.6); border: 1px solid rgba(255, 255, 255, 0.05); backdrop-filter: blur(20px); box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.5); }
+        .expandable-content { max-height: 0; overflow: hidden; transition: max-height 0.5s ease-in-out, opacity 0.3s ease-in-out; opacity: 0; }
+        .expandable-content.open { max-height: 500px; opacity: 1; }
         .chevron { transition: transform 0.3s ease; }
         .chevron.open { transform: rotate(180deg); }
         ::-webkit-scrollbar { width: 8px; }
         ::-webkit-scrollbar-track { background: #050505; }
         ::-webkit-scrollbar-thumb { background: #ef4444; border-radius: 10px; }
-        
-        /* Table styles */
         .glass-table { width: 100%; border-collapse: collapse; text-align: left; }
         .glass-table th { background: rgba(255,255,255,0.05); padding: 12px 15px; font-size: 12px; text-transform: uppercase; letter-spacing: 1px; color: #9ca3af; border-bottom: 1px solid rgba(255,255,255,0.1); }
         .glass-table td { padding: 12px 15px; font-size: 14px; border-bottom: 1px solid rgba(255,255,255,0.05); color: #d1d5db; }
@@ -52,7 +31,6 @@
 <body class="p-4 md:p-10 flex justify-center min-h-screen relative overflow-x-hidden">
 
     <div id="main-content" class="w-full max-w-6xl flex flex-col space-y-6">
-        
         <div class="flex flex-col md:flex-row items-center justify-between mb-2 mt-4 glass-panel p-6 rounded-3xl border-l-4 border-red-500 relative overflow-hidden">
             <div class="absolute -left-20 -top-20 w-40 h-40 bg-red-600/20 rounded-full blur-3xl"></div>
             <div class="flex items-center gap-4 z-10">
@@ -71,7 +49,6 @@
         </div>
 
         <div id="tab-manage-content" class="space-y-6">
-            
             <div class="glass-panel rounded-3xl overflow-hidden border border-red-900/30">
                 <button id="security-trigger" class="w-full p-6 flex justify-between items-center bg-gradient-to-r from-red-900/20 to-transparent hover:bg-red-900/40 transition-colors group">
                     <div class="flex items-center gap-3">
@@ -121,7 +98,6 @@
 
             <div id="editor-section" class="glass-panel p-6 rounded-3xl hidden relative overflow-hidden transition-all duration-500 opacity-0 transform translate-y-4">
                 <div class="grid grid-cols-1 md:grid-cols-2 gap-6 z-10 relative">
-                    
                     <div class="space-y-4 bg-black/30 p-5 rounded-2xl border border-indigo-500/20">
                         <h3 class="font-bold text-indigo-300"><i class="fa-solid fa-shield-halved mr-2"></i> Outline Config</h3>
                         <div>
@@ -161,35 +137,26 @@
 
                 <div class="bg-indigo-900/20 border border-indigo-500/30 p-5 rounded-2xl mt-6 hidden" id="link-generator">
                     <p class="text-xs text-indigo-300 mb-4 font-bold uppercase tracking-widest"><i class="fa-solid fa-link mr-1"></i> Direct Client Access Links</p>
-                    
                     <div class="space-y-4">
                         <div>
                             <label class="text-xs text-indigo-400 mb-1 block uppercase">Outline Portal Link</label>
                             <div class="flex items-center gap-3">
                                 <input type="text" id="auto-link-outline" class="w-full bg-black/60 border border-indigo-500/50 rounded-xl px-4 py-3 text-sm text-indigo-100 focus:outline-none" readonly>
-                                <button id="btn-copy-link-outline" class="bg-indigo-600 hover:bg-indigo-500 text-white px-6 py-3 rounded-xl font-bold transition-all shadow-md">
-                                    <i class="fa-solid fa-copy"></i>
-                                </button>
+                                <button id="btn-copy-link-outline" class="bg-indigo-600 hover:bg-indigo-500 text-white px-6 py-3 rounded-xl font-bold transition-all shadow-md"><i class="fa-solid fa-copy"></i></button>
                             </div>
                         </div>
-
                         <div>
                             <label class="text-xs text-cyan-400 mb-1 block uppercase">VLESS Portal Link</label>
                             <div class="flex items-center gap-3">
                                 <input type="text" id="auto-link-vless" class="w-full bg-black/60 border border-cyan-500/50 rounded-xl px-4 py-3 text-sm text-cyan-100 focus:outline-none" readonly>
-                                <button id="btn-copy-link-vless" class="bg-cyan-600 hover:bg-cyan-500 text-white px-6 py-3 rounded-xl font-bold transition-all shadow-md">
-                                    <i class="fa-solid fa-copy"></i>
-                                </button>
+                                <button id="btn-copy-link-vless" class="bg-cyan-600 hover:bg-cyan-500 text-white px-6 py-3 rounded-xl font-bold transition-all shadow-md"><i class="fa-solid fa-copy"></i></button>
                             </div>
                         </div>
-
                         <div>
                             <label class="text-xs text-purple-400 mb-1 block uppercase">General Dashboard Link (Both)</label>
                             <div class="flex items-center gap-3">
                                 <input type="text" id="auto-link-user" class="w-full bg-black/60 border border-purple-500/50 rounded-xl px-4 py-3 text-sm text-purple-100 focus:outline-none" readonly>
-                                <button id="btn-copy-link-user" class="bg-purple-600 hover:bg-purple-500 text-white px-6 py-3 rounded-xl font-bold transition-all shadow-md">
-                                    <i class="fa-solid fa-copy"></i>
-                                </button>
+                                <button id="btn-copy-link-user" class="bg-purple-600 hover:bg-purple-500 text-white px-6 py-3 rounded-xl font-bold transition-all shadow-md"><i class="fa-solid fa-copy"></i></button>
                             </div>
                         </div>
                     </div>
@@ -198,7 +165,6 @@
         </div>
 
         <div id="tab-list-content" class="space-y-6 hidden">
-            
             <div class="grid grid-cols-2 md:grid-cols-4 gap-4">
                 <div class="bg-black/40 border border-white/5 p-5 rounded-2xl">
                     <p class="text-xs text-gray-400 uppercase tracking-widest mb-1"><i class="fa-solid fa-users text-indigo-400 mr-1"></i> Total Users</p>
@@ -223,7 +189,6 @@
                     <h2 class="text-lg font-bold text-gray-200 tracking-wide"><i class="fa-solid fa-database text-red-400 mr-2"></i> Users Database</h2>
                     <button id="btn-refresh-list" class="text-sm text-gray-400 hover:text-white transition-colors bg-white/5 px-3 py-1.5 rounded-lg"><i class="fa-solid fa-rotate-right"></i> Refresh</button>
                 </div>
-                
                 <div class="overflow-x-auto">
                     <table class="glass-table w-full">
                         <thead>
@@ -241,7 +206,6 @@
                     </table>
                 </div>
             </div>
-
         </div>
 
     </div>
@@ -250,7 +214,6 @@
         import { initializeApp } from "https://www.gstatic.com/firebasejs/10.8.1/firebase-app.js";
         import { getFirestore, doc, getDoc, setDoc, collection, getDocs } from "https://www.gstatic.com/firebasejs/10.8.1/firebase-firestore.js";
 
-        // Initialize Firebase
         const firebaseConfig = { 
             apiKey: "AIzaSyCiibkAoIbkTAfZRILSfx3qA2SjNFEdB5U", 
             authDomain: "vpn-pane.firebaseapp.com", 
@@ -262,7 +225,6 @@
         const app = initializeApp(firebaseConfig);
         const db = getFirestore(app);
 
-        // Navigation Tabs Logic
         const navManage = document.getElementById('nav-manage');
         const navList = document.getElementById('nav-list');
         const tabManageContent = document.getElementById('tab-manage-content');
@@ -280,16 +242,14 @@
             navManage.className = "bg-black/50 text-gray-400 hover:text-white border border-white/10 px-5 py-2.5 rounded-xl text-sm font-bold transition-all";
             tabListContent.classList.remove('hidden');
             tabManageContent.classList.add('hidden');
-            loadAllUsers(); // Load table when clicked
+            loadAllUsers();
         });
 
-        // Security Panel Toggle
         document.getElementById('security-trigger').addEventListener('click', () => { 
             document.getElementById('security-content').classList.toggle('open'); 
             document.getElementById('security-chevron').classList.toggle('open'); 
         });
 
-        // Load Admin Configs
         async function loadConfigs() {
             const snap = await getDoc(doc(db, "admin_config", "server_api"));
             if (snap.exists()) {
@@ -302,7 +262,6 @@
         }
         loadConfigs();
 
-        // Save Admin Configs
         document.getElementById('btn-save-cfg').addEventListener('click', async () => {
             const btn = document.getElementById('btn-save-cfg');
             btn.innerHTML = '<i class="fa-solid fa-spinner fa-spin"></i> SAVING...';
@@ -319,7 +278,6 @@
             setTimeout(() => msg.classList.add('hidden'), 3000);
         });
 
-        // Fetch User Data
         document.getElementById('btn-fetch').addEventListener('click', async () => {
             const username = document.getElementById('admin-username').value.trim().toUpperCase(); 
             if(!username) return;
@@ -349,27 +307,19 @@
             } else {
                 statusMsg.innerHTML = `<i class="fa-solid fa-user-plus mr-2"></i> Creating new user profile for: <b class="text-white">${username}</b>`;
                 statusMsg.className = "mt-4 text-sm bg-orange-500/10 text-orange-400 px-4 py-2 rounded-lg border border-orange-500/20 inline-block";
-                
-                // Clear fields
                 document.querySelectorAll('#editor-section input[type="text"]:not(#auto-link-outline):not(#auto-link-vless):not(#auto-link-user), #editor-section input[type="number"], #editor-section input[type="date"]').forEach(inp => inp.value = "");
             }
             
-            // Show Editor
             editorSec.classList.remove('hidden');
-            setTimeout(() => {
-                editorSec.classList.remove('opacity-0', 'translate-y-4');
-            }, 50);
+            setTimeout(() => { editorSec.classList.remove('opacity-0', 'translate-y-4'); }, 50);
             
-            // Generate Links pointing to REAL_Final repo
             const baseUrl = "https://tko40575-sudo.github.io/REAL_Final/";
-            
             document.getElementById('auto-link-outline').value = baseUrl + "outline.html?id=" + username;
             document.getElementById('auto-link-vless').value = baseUrl + "vless.html?id=" + username;
             document.getElementById('auto-link-user').value = baseUrl + "user.html?id=" + username;
             document.getElementById('link-generator').classList.remove('hidden');
         });
 
-        // Setup Copy Buttons
         function setupCopyBtn(btnId, inputId, defaultColorClass) {
             document.getElementById(btnId).addEventListener('click', () => {
                 const linkInput = document.getElementById(inputId);
@@ -390,7 +340,6 @@
         setupCopyBtn('btn-copy-link-vless', 'auto-link-vless', 'bg-cyan-600');
         setupCopyBtn('btn-copy-link-user', 'auto-link-user', 'bg-purple-600');
 
-        // Save User Data
         document.getElementById('btn-save').addEventListener('click', async () => {
             const username = document.getElementById('admin-username').value.trim().toUpperCase();
             if(!username) return alert("Please fetch a user first.");
@@ -418,7 +367,6 @@
             }, 2500);
         });
 
-        // Load All Users & Analytics
         async function loadAllUsers() {
             const tbody = document.getElementById('users-table-body');
             tbody.innerHTML = '<tr><td colspan="5" class="text-center text-indigo-400 py-6"><i class="fa-solid fa-circle-notch fa-spin mr-2"></i> Scanning Database...</td></tr>';
@@ -433,13 +381,11 @@
                     const id = doc.id;
                     stats.total++;
 
-                    // Count Devices
                     const os = data.deviceOS || "Unknown";
                     if (os === "Android") stats.android++;
                     else if (os === "iOS") stats.ios++;
                     else if (os === "Windows" || os === "Mac" || os === "Linux") stats.pc++;
 
-                    // Calculate Percentages
                     let outP = data.outlineTotalGB ? Math.round((data.outlineUsedGB / data.outlineTotalGB) * 100) : 0;
                     let vlessP = data.vlessTotalGB ? Math.round((data.vlessUsedGB / data.vlessTotalGB) * 100) : 0;
                     outP = Math.min(outP, 100); vlessP = Math.min(vlessP, 100);
@@ -447,7 +393,6 @@
                     const outColor = outP > 90 ? "text-red-400" : "text-indigo-400";
                     const vlessColor = vlessP > 90 ? "text-red-400" : "text-cyan-400";
 
-                    // Device Badge
                     let badge = `<span class="os-badge os-unknown"><i class="fa-solid fa-desktop"></i> Unknown</span>`;
                     if(os === "Android") badge = `<span class="os-badge os-android"><i class="fa-brands fa-android"></i> Android</span>`;
                     if(os === "iOS") badge = `<span class="os-badge os-ios"><i class="fa-brands fa-apple"></i> iOS</span>`;
@@ -480,8 +425,6 @@
                 }
 
                 tbody.innerHTML = html;
-
-                // Update Stats Dashboard
                 document.getElementById('stat-total').innerText = stats.total;
                 document.getElementById('stat-android').innerText = stats.android;
                 document.getElementById('stat-ios').innerText = stats.ios;
@@ -495,7 +438,6 @@
 
         document.getElementById('btn-refresh-list').addEventListener('click', loadAllUsers);
 
-        // Global Edit Function (from table)
         window.editUser = function(userId) {
             navManage.click();
             document.getElementById('admin-username').value = userId;
