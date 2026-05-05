@@ -92,14 +92,12 @@ def sync_data():
             update_fields = {}
             
             # Outline Sync
-            # User ID ကို Outline ID အဖြစ် ယူဆသည်၊ သို့မဟုတ် outlineId field ကို သုံးသည်
             outline_id = user_data.get('outlineId', user_id) 
             if outline_id in outline_data:
                 used_gb = outline_data[outline_id] / (1024 ** 3)
                 update_fields['outlineUsedGB'] = round(used_gb, 3)
 
             # X-UI (Vless) Sync
-            # User ID ကို Vless Email အဖြစ် ယူဆသည်
             if user_id in xui_data:
                 used_gb = xui_data[user_id] / (1024 ** 3)
                 update_fields['vlessUsedGB'] = round(used_gb, 3)
