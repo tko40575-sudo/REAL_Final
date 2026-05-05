@@ -62,7 +62,6 @@
         </div>
 
         <div id="dashboard-section" class="hidden space-y-6">
-            
             <div class="glass-panel p-6 rounded-3xl flex flex-col md:flex-row justify-between items-center gap-4 relative overflow-hidden fade-in-up">
                 <div class="absolute -right-20 -top-20 w-40 h-40 bg-violet-600/20 rounded-full blur-3xl"></div>
                 
@@ -204,12 +203,9 @@
         import { initializeApp } from "https://www.gstatic.com/firebasejs/10.8.1/firebase-app.js";
         import { getFirestore, doc, setDoc, getDoc, onSnapshot } from "https://www.gstatic.com/firebasejs/10.8.1/firebase-firestore.js";
 
-        // ✨ FIXED: Device OS Detection (Aggressive iPad/iPhone check)
         function getDeviceOS() {
             const ua = navigator.userAgent || navigator.vendor || window.opera;
             if (/windows phone/i.test(ua)) return { name: "Windows Phone", icon: "fa-windows" };
-            
-            // iPadOS 13+ workaround (Apples makes modern iPads pretend to be Mac)
             if (/iPad|iPhone|iPod/.test(ua) || (navigator.platform === 'MacIntel' && navigator.maxTouchPoints > 1)) {
                 return { name: "iOS", icon: "fa-apple" };
             }
@@ -224,7 +220,6 @@
         document.getElementById('device-icon').className = `fa-brands ${currentDevice.icon} text-violet-400`;
         document.getElementById('device-text').innerText = currentDevice.name;
 
-        // Auto-Login Setup
         window.addEventListener('load', () => {
             const urlParams = new URLSearchParams(window.location.search);
             const autoId = urlParams.get('id');
@@ -239,7 +234,6 @@
             }
         });
 
-        // Tab Logic Setup
         const tabAll = document.getElementById('tab-all'); const tabOut = document.getElementById('tab-out'); const tabVless = document.getElementById('tab-vless');
         const cardOutline = document.getElementById('card-outline'); const cardVless = document.getElementById('card-vless'); const cardsContainer = document.getElementById('cards-container');
 
@@ -248,7 +242,14 @@
         tabOut.addEventListener('click', () => { resetTabs(); tabOut.className = "nav-tab px-5 md:px-6 py-2.5 rounded-xl text-sm font-bold bg-emerald-700 text-white shadow-lg transition-all"; cardsContainer.className = "grid grid-cols-1 gap-6 relative transition-all duration-500 place-items-center"; cardVless.classList.add('card-hidden'); });
         tabVless.addEventListener('click', () => { resetTabs(); tabVless.className = "nav-tab px-5 md:px-6 py-2.5 rounded-xl text-sm font-bold bg-violet-600 text-white shadow-lg transition-all"; cardsContainer.className = "grid grid-cols-1 gap-6 relative transition-all duration-500 place-items-center"; cardOutline.classList.add('card-hidden'); });
 
-        const firebaseConfig = { apiKey: "AIzaSyCiibkAoIbkTAfZRILSfx3qA2SjNFEdB5U", authDomain: "vpn-pane.firebaseapp.com", projectId: "vpn-pane", storageBucket: "vpn-pane.firebasestorage.app", messagingSenderId: "1094380249696", appId: "1:1094380249696:web:d94f63c4f7170654415905" };
+        const firebaseConfig = { 
+            apiKey: "AIzaSyCiibkAoIbkTAfZRILSfx3qA2SjNFEdB5U", 
+            authDomain: "vpn-pane.firebaseapp.com", 
+            projectId: "vpn-pane", 
+            storageBucket: "vpn-pane.firebasestorage.app", 
+            messagingSenderId: "1094380249696", 
+            appId: "1:1094380249696:web:d94f63c4f7170654415905" 
+        };
         const app = initializeApp(firebaseConfig); const db = getFirestore(app);
         let liveListener = null; let currentUserId = ""; 
         let outQR = new QRCode(document.getElementById("out-qr"), { width: 90, height: 90, colorDark : "#000000", colorLight : "#ffffff" });
@@ -287,7 +288,6 @@
             }).catch(err => { alert("Failed to copy automatically."); inputElement.type = 'password'; });
         };
 
-        // ✨ FIXED: Login Logic (Prevents infinite write loops)
         document.getElementById('btn-login').addEventListener('click', async () => {
             const username = document.getElementById('username-input').value.trim().toUpperCase();
             const errorMsg = document.getElementById('login-error'); const loginBtn = document.getElementById('btn-login');
@@ -299,7 +299,6 @@
                 const userCheck = await getDoc(docRef);
 
                 if (userCheck.exists()) {
-                    // Update device tracking ONCE on login (Solves infinite loop bug)
                     await setDoc(docRef, { lastActive: new Date().toISOString(), deviceOS: currentDevice.name }, { merge: true });
 
                     liveListener = onSnapshot(docRef, (docSnap) => {
