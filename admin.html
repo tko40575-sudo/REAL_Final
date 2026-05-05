@@ -62,19 +62,19 @@
                         <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
                             <div class="bg-black/40 p-4 rounded-2xl border border-white/5">
                                 <label class="text-xs text-gray-400 uppercase tracking-widest mb-1 block">Outline API URL</label>
-                                <input type="text" id="cfg-outline" class="w-full bg-black/50 border border-gray-700/50 rounded-xl px-4 py-2 text-sm text-white focus:outline-none focus:border-red-500">
+                                <input type="text" id="cfg-outline" autocomplete="off" spellcheck="false" class="w-full bg-black/50 border border-gray-700/50 rounded-xl px-4 py-2 text-sm text-white focus:outline-none focus:border-red-500">
                             </div>
                             <div class="bg-black/40 p-4 rounded-2xl border border-white/5">
                                 <label class="text-xs text-gray-400 uppercase tracking-widest mb-1 block">X-UI (VLESS) URL</label>
-                                <input type="text" id="cfg-xui-url" class="w-full bg-black/50 border border-gray-700/50 rounded-xl px-4 py-2 text-sm text-white focus:outline-none focus:border-red-500">
+                                <input type="text" id="cfg-xui-url" autocomplete="off" spellcheck="false" class="w-full bg-black/50 border border-gray-700/50 rounded-xl px-4 py-2 text-sm text-white focus:outline-none focus:border-red-500">
                             </div>
                             <div class="bg-black/40 p-4 rounded-2xl border border-white/5">
                                 <label class="text-xs text-gray-400 uppercase tracking-widest mb-1 block">X-UI Username</label>
-                                <input type="text" id="cfg-xui-user" class="w-full bg-black/50 border border-gray-700/50 rounded-xl px-4 py-2 text-sm text-white focus:outline-none focus:border-red-500">
+                                <input type="text" id="cfg-xui-user" autocomplete="off" spellcheck="false" class="w-full bg-black/50 border border-gray-700/50 rounded-xl px-4 py-2 text-sm text-white focus:outline-none focus:border-red-500">
                             </div>
                             <div class="bg-black/40 p-4 rounded-2xl border border-white/5">
                                 <label class="text-xs text-gray-400 uppercase tracking-widest mb-1 block">X-UI Password</label>
-                                <input type="password" id="cfg-xui-pass" class="w-full bg-black/50 border border-gray-700/50 rounded-xl px-4 py-2 text-sm text-white focus:outline-none focus:border-red-500">
+                                <input type="text" id="cfg-xui-pass" style="-webkit-text-security: disc;" autocomplete="off" spellcheck="false" class="w-full bg-black/50 border border-gray-700/50 rounded-xl px-4 py-2 text-sm text-white focus:outline-none focus:border-red-500">
                             </div>
                         </div>
                         <div class="mt-4 flex items-center">
@@ -88,7 +88,7 @@
             <div class="glass-panel p-6 rounded-3xl relative overflow-hidden">
                 <h2 class="text-lg font-bold mb-4 text-gray-200 tracking-wide border-b border-gray-800 pb-2"><i class="fa-solid fa-user-plus text-indigo-400 mr-2"></i> Add / Search User</h2>
                 <div class="flex flex-col md:flex-row space-y-4 md:space-y-0 md:space-x-4">
-                    <input type="text" id="admin-username" placeholder="Enter Login ID (e.g. FREE5)" class="w-full bg-black/40 border border-gray-700/50 rounded-2xl px-4 py-4 text-white focus:outline-none focus:border-indigo-500">
+                    <input type="text" id="admin-username" autocomplete="off" spellcheck="false" placeholder="Enter Login ID (e.g. FREE5)" class="w-full bg-black/40 border border-gray-700/50 rounded-2xl px-4 py-4 text-white focus:outline-none focus:border-indigo-500">
                     <button id="btn-fetch" class="bg-indigo-600 hover:bg-indigo-500 text-white font-bold py-4 px-8 rounded-2xl shadow-lg transition-all flex items-center justify-center gap-2">
                         FETCH <i class="fa-solid fa-arrow-right"></i>
                     </button>
@@ -102,7 +102,7 @@
                         <h3 class="font-bold text-indigo-300"><i class="fa-solid fa-shield-halved mr-2"></i> Outline Config</h3>
                         <div>
                             <label class="text-xs text-gray-400 uppercase">Access Key (ss://)</label>
-                            <input type="text" id="out-key" class="w-full bg-black/50 border border-indigo-700/50 rounded-xl px-4 py-2 text-sm text-white focus:outline-none focus:border-indigo-400 mt-1">
+                            <input type="text" id="out-key" autocomplete="off" spellcheck="false" class="w-full bg-black/50 border border-indigo-700/50 rounded-xl px-4 py-2 text-sm text-white focus:outline-none focus:border-indigo-400 mt-1">
                         </div>
                         <div>
                             <label class="text-xs text-gray-400 uppercase">Total GB Allowed</label>
@@ -118,7 +118,7 @@
                         <h3 class="font-bold text-cyan-300"><i class="fa-solid fa-network-wired mr-2"></i> VLESS Config</h3>
                         <div>
                             <label class="text-xs text-gray-400 uppercase">VLESS Link (vless://)</label>
-                            <input type="text" id="vless-key" class="w-full bg-black/50 border border-cyan-700/50 rounded-xl px-4 py-2 text-sm text-white focus:outline-none focus:border-cyan-400 mt-1">
+                            <input type="text" id="vless-key" autocomplete="off" spellcheck="false" class="w-full bg-black/50 border border-cyan-700/50 rounded-xl px-4 py-2 text-sm text-white focus:outline-none focus:border-cyan-400 mt-1">
                         </div>
                         <div>
                             <label class="text-xs text-gray-400 uppercase">Total GB Allowed</label>
