@@ -11,7 +11,6 @@ urllib3.disable_warnings(urllib3.exceptions.InsecureRequestWarning)
 # ==========================================
 # Firebase ချိတ်ဆက်ခြင်း
 # ==========================================
-# ⚠️ serviceAccountKey.json သည် သင်၏ Firebase Project မှ ထုတ်ယူထားသော Admin Key ဖြစ်ရမည်။
 try:
     cred = credentials.Certificate("serviceAccountKey.json")
     firebase_admin.initialize_app(cred)
@@ -22,7 +21,6 @@ except Exception as e:
     exit(1)
 
 def get_server_configs():
-    """Admin Panel မှ ထည့်ထားသော Server Credentials များကို Firebase မှ လှမ်းယူခြင်း"""
     try:
         doc = db.collection("admin_config").document("server_api").get()
         if doc.exists:
@@ -34,7 +32,6 @@ def get_server_configs():
 def get_outline_usage(api_url):
     if not api_url: return {}
     try:
-        # Outline Metrics API သို့ လှမ်းခေါ်ခြင်း
         res = requests.get(f"{api_url}/metrics/transfer", verify=False, timeout=10)
         return res.json().get('bytesTransferredByUserId', {})
     except Exception as e:
@@ -45,14 +42,12 @@ def get_xui_usage(xui_url, xui_user, xui_pass):
     if not xui_url or not xui_user: return {}
     try:
         session = requests.Session()
-        # X-UI Panel သို့ Login ဝင်ခြင်း
         login_res = session.post(f"{xui_url}/login", data={'username': xui_user, 'password': xui_pass}, timeout=10)
         
         if login_res.status_code != 200:
             print("[-] X-UI Login Failed! Check Password in Admin Panel.")
             return {}
         
-        # Inbounds Data ကို ဆွဲယူခြင်း
         res = session.get(f"{xui_url}/xui/API/inbounds", timeout=10)
         inbounds = res.json().get('obj', [])
         
@@ -91,18 +86,15 @@ def sync_data():
             user_data = doc.to_dict()
             update_fields = {}
             
-            # Outline Sync
             outline_id = user_data.get('outlineId', user_id) 
             if outline_id in outline_data:
                 used_gb = outline_data[outline_id] / (1024 ** 3)
                 update_fields['outlineUsedGB'] = round(used_gb, 3)
 
-            # X-UI (Vless) Sync
             if user_id in xui_data:
                 used_gb = xui_data[user_id] / (1024 ** 3)
                 update_fields['vlessUsedGB'] = round(used_gb, 3)
 
-            # Update if there are changes
             if update_fields:
                 users_ref.document(user_id).update(update_fields)
                 updated_count += 1
@@ -117,4 +109,4 @@ if __name__ == "__main__":
     while True:
         sync_data()
         print("[*] Sleeping for 60 seconds...")
-        time.sleep(60) # ၁ မိနစ်တစ်ခါ Auto Update လုပ်မည်
+        time.sleep(60)
