@@ -13,11 +13,10 @@
         .glass-panel { background: rgba(20, 20, 25, 0.6); border: 1px solid rgba(255, 255, 255, 0.05); backdrop-filter: blur(20px); box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.5); }
         .data-card { transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1); }
         .data-card:hover { transform: translateY(-5px); box-shadow: 0 20px 40px -10px rgba(0,0,0,0.7); }
-        ::-webkit-scrollbar { width: 8px; } ::-webkit-scrollbar-track { background: #050505; } ::-webkit-scrollbar-thumb { background: #4f46e5; border-radius: 10px; }
+        ::-webkit-scrollbar { width: 8px; } ::-webkit-scrollbar-track { background: #050505; } ::-webkit-scrollbar-thumb { background: #059669; border-radius: 10px; }
         .qr-wrapper { background: white; padding: 8px; border-radius: 12px; display: inline-block; transition: transform 0.3s; }
         .qr-wrapper:hover { transform: scale(1.05); } .qr-wrapper img { margin: 0 auto; border-radius: 8px; }
 
-        /* Custom Logo Animation Overlay */
         #startup-overlay { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: #050505; z-index: 50; display: flex; flex-direction: column; justify-content: center; align-items: center; transition: opacity 0.8s ease-out, visibility 0.8s; }
         .fade-in-up { opacity: 0; transform: translateY(30px); animation: fadeInUp 0.7s cubic-bezier(0.2, 0.8, 0.2, 1) forwards; }
         .delay-100 { animation-delay: 0.15s; }
@@ -29,11 +28,11 @@
 
     <div id="startup-overlay">
         <div class="relative w-32 h-32 mb-6 flex items-center justify-center">
-            <div class="absolute inset-0 rounded-full border-y-4 border-indigo-500 animate-spin shadow-[0_0_30px_rgba(99,102,241,0.6)]"></div>
-            <div class="absolute inset-2 rounded-full border-x-4 border-blue-400 animate-[spin_2s_reverse_infinite] shadow-[0_0_20px_rgba(96,165,250,0.5)]"></div>
-            <img src="https://placehold.co/200x200/050505/6366f1?text=YLT+VPN&font=Montserrat" alt="Logo" class="w-24 h-24 rounded-full object-cover animate-pulse z-10 border border-white/10 shadow-[0_0_20px_rgba(0,0,0,0.8)]">
+            <div class="absolute inset-0 rounded-full border-y-4 border-emerald-600 animate-spin shadow-[0_0_30px_rgba(5,150,105,0.6)]"></div>
+            <div class="absolute inset-2 rounded-full border-x-4 border-green-500 animate-[spin_2s_reverse_infinite] shadow-[0_0_20px_rgba(34,197,94,0.5)]"></div>
+            <img src="https://placehold.co/200x200/050505/10b981?text=YLT+VPN&font=Montserrat" alt="Logo" class="w-24 h-24 rounded-full object-cover animate-pulse z-10 border border-white/10 shadow-[0_0_20px_rgba(0,0,0,0.8)]">
         </div>
-        <h2 class="text-2xl font-black tracking-widest text-transparent bg-clip-text bg-gradient-to-r from-indigo-400 to-blue-400">OUTLINE ACCESS</h2>
+        <h2 class="text-2xl font-black tracking-widest text-transparent bg-clip-text bg-gradient-to-r from-emerald-500 to-green-400">OUTLINE ACCESS</h2>
         <p class="text-xs text-gray-500 mt-2 tracking-widest uppercase animate-pulse">Securing connection...</p>
     </div>
 
@@ -48,10 +47,9 @@
         <div id="dashboard-section" class="hidden space-y-6">
             
             <div class="glass-panel p-6 rounded-3xl flex flex-col md:flex-row justify-between items-center gap-4 relative overflow-hidden fade-in-up">
-                <div class="absolute -right-20 -top-20 w-40 h-40 bg-indigo-600/20 rounded-full blur-3xl"></div>
-                
+                <div class="absolute -right-20 -top-20 w-40 h-40 bg-emerald-700/20 rounded-full blur-3xl"></div>
                 <div class="flex items-center gap-4 z-10 w-full md:w-auto">
-                    <div class="w-14 h-14 bg-gradient-to-br from-indigo-500 to-blue-500 rounded-full flex items-center justify-center shadow-[0_0_15px_rgba(99,102,241,0.4)] border-2 border-white/10">
+                    <div class="w-14 h-14 bg-gradient-to-br from-emerald-600 to-green-500 rounded-full flex items-center justify-center shadow-[0_0_15px_rgba(5,150,105,0.4)] border-2 border-white/10">
                         <i class="fa-solid fa-user-shield text-xl text-white"></i>
                     </div>
                     <div>
@@ -71,81 +69,123 @@
                 </div>
             </div>
 
-            <div class="glass-panel p-8 rounded-3xl data-card relative overflow-hidden fade-in-up delay-100 flex flex-col border border-indigo-500/20">
-                <div class="absolute top-0 right-0 w-full h-1 bg-gradient-to-r from-transparent via-indigo-500 to-transparent opacity-70"></div>
-                <div class="absolute -bottom-10 -right-10 w-40 h-40 bg-indigo-500/10 rounded-full blur-2xl"></div>
+            <div class="glass-panel p-8 rounded-3xl data-card relative overflow-hidden fade-in-up delay-100 flex flex-col border border-emerald-600/20">
+                <div class="absolute top-0 right-0 w-full h-1 bg-gradient-to-r from-transparent via-emerald-600 to-transparent opacity-70"></div>
+                <div class="absolute -bottom-10 -right-10 w-40 h-40 bg-emerald-700/10 rounded-full blur-2xl"></div>
                 
                 <div class="flex justify-between items-center mb-6 relative z-10">
                     <div class="flex items-center gap-3">
-                        <div class="w-12 h-12 bg-indigo-500/20 rounded-xl flex items-center justify-center text-indigo-400 border border-indigo-500/30 shadow-[0_0_15px_rgba(99,102,241,0.2)]"><i class="fa-solid fa-shield-halved text-xl"></i></div>
+                        <div class="w-12 h-12 bg-emerald-600/20 rounded-xl flex items-center justify-center text-emerald-500 border border-emerald-600/30 shadow-[0_0_15px_rgba(5,150,105,0.2)]"><i class="fa-solid fa-shield-halved text-xl"></i></div>
                         <h3 class="text-xl font-bold text-gray-200 tracking-wide">Outline Config</h3>
                     </div>
                 </div>
                 
                 <div class="flex-1 space-y-5 relative z-10">
                     <div class="bg-black/40 p-5 rounded-2xl border border-white/5 relative overflow-hidden transition-colors hover:bg-black/50">
-                        <p class="text-xs text-gray-400 mb-2 uppercase tracking-widest flex justify-between"><span>Data Usage</span><span id="out-percent-text" class="text-indigo-400 font-bold">0%</span></p>
-                        <div class="flex items-end gap-2 mb-4"><p class="text-4xl font-extrabold text-white" style="text-shadow: 0 0 20px rgba(99,102,241,0.6);" id="out-used-show">0</p><p class="text-sm text-gray-500 font-medium mb-1">/ <span id="out-total-show">0</span> GB</p></div>
-                        <div class="w-full bg-gray-800 rounded-full h-2 border border-gray-700/50 overflow-hidden"><div id="out-progress" class="bg-gradient-to-r from-indigo-600 to-blue-400 h-2 rounded-full progress-bar shadow-[0_0_10px_rgba(99,102,241,0.8)]" style="width: 0%"></div></div>
+                        <p class="text-xs text-gray-400 mb-2 uppercase tracking-widest flex justify-between"><span>Data Usage</span><span id="out-percent-text" class="text-emerald-500 font-bold">0%</span></p>
+                        <div class="flex items-end gap-2 mb-4"><p class="text-4xl font-extrabold text-white" style="text-shadow: 0 0 20px rgba(16,185,129,0.5);" id="out-used-show">0</p><p class="text-sm text-gray-500 font-medium mb-1">/ <span id="out-total-show">0</span> GB</p></div>
+                        <div class="w-full bg-gray-800 rounded-full h-2 border border-gray-700/50 overflow-hidden"><div id="out-progress" class="bg-gradient-to-r from-emerald-600 to-green-400 h-2 rounded-full progress-bar shadow-[0_0_10px_rgba(16,185,129,0.6)]" style="width: 0%"></div></div>
                     </div>
 
                     <div class="bg-black/40 p-5 rounded-2xl border border-white/5 flex justify-between items-center transition-colors hover:bg-black/50">
                         <div><p class="text-xs text-gray-400 mb-1 uppercase tracking-widest">Expire Date</p><p class="text-xl font-bold text-gray-200" id="out-expire-show">N/A</p></div>
-                        <i class="fa-regular fa-calendar text-indigo-500/50 text-3xl group-hover:scale-110 transition-transform"></i>
+                        <i class="fa-regular fa-calendar text-emerald-600/50 text-3xl group-hover:scale-110 transition-transform"></i>
                     </div>
 
-                    <div class="bg-indigo-900/20 p-5 rounded-2xl border border-indigo-500/30 flex items-center justify-between mt-4">
-                        <div class="flex-1 mr-6">
-                            <p class="text-xs text-indigo-300 mb-2 font-bold uppercase tracking-widest">Access Key (ss://)</p>
-                            <input type="password" id="out-key-hidden" class="w-full bg-black/50 border border-indigo-500/50 rounded-xl px-4 py-3 text-sm text-indigo-100 mb-4 focus:outline-none" readonly value="Loading...">
-                            <button onclick="copyKey('out-key-hidden')" class="w-full bg-indigo-600 hover:bg-indigo-500 text-white py-3 rounded-xl font-bold transition-all shadow-[0_5px_15px_-5px_rgba(99,102,241,0.6)] flex items-center justify-center gap-2 hover:scale-[1.02]">
-                                <i class="fa-solid fa-copy"></i> COPY OUTLINE KEY
-                            </button>
+                    <div class="bg-emerald-900/20 p-5 rounded-2xl border border-emerald-600/30 flex flex-col justify-between mt-4">
+                        <div class="flex justify-between items-center mb-3">
+                            <p class="text-xs text-emerald-400 font-bold uppercase tracking-widest">Access Key (ss://)</p>
+                            <button onclick="document.getElementById('setup-modal').classList.remove('hidden')" class="text-xs text-emerald-400 hover:text-white transition-colors bg-emerald-700/20 px-3 py-1.5 rounded flex items-center gap-1 border border-emerald-600/30"><i class="fa-solid fa-circle-question"></i> How to Connect?</button>
                         </div>
-                        <div id="out-qr" class="qr-wrapper bg-white p-2 rounded-xl"></div>
+                        <div class="flex flex-col md:flex-row gap-4">
+                            <div class="flex-1">
+                                <input type="password" id="out-key-hidden" class="w-full bg-black/50 border border-emerald-600/50 rounded-xl px-4 py-3 text-sm text-emerald-100 mb-4 focus:outline-none" readonly value="Loading...">
+                                <button onclick="copyKey('out-key-hidden')" class="w-full bg-emerald-700 hover:bg-emerald-600 text-white py-3 rounded-xl font-bold transition-all shadow-[0_5px_15px_-5px_rgba(5,150,105,0.6)] flex items-center justify-center gap-2 hover:scale-[1.02]">
+                                    <i class="fa-solid fa-copy"></i> COPY OUTLINE KEY
+                                </button>
+                            </div>
+                            <div id="out-qr" class="qr-wrapper bg-white p-2 rounded-xl self-center"></div>
+                        </div>
                     </div>
                 </div>
             </div>
 
         </div>
+
+        <div id="setup-modal" class="hidden fixed inset-0 z-[100] flex items-center justify-center p-4 bg-black/80 backdrop-blur-sm transition-opacity">
+            <div class="glass-panel p-6 rounded-3xl max-w-md w-full relative">
+                <button onclick="document.getElementById('setup-modal').classList.add('hidden')" class="absolute top-4 right-5 text-gray-500 hover:text-white transition-colors"><i class="fa-solid fa-xmark text-xl"></i></button>
+                <h3 class="text-xl font-bold text-white mb-6"><i class="fa-solid fa-download text-emerald-500 mr-2"></i> Setup Guide</h3>
+                
+                <div class="space-y-4 text-sm text-gray-300">
+                    <div class="bg-black/40 p-4 rounded-xl border border-white/5 flex gap-3 items-start">
+                        <span class="bg-emerald-700 text-white px-2 py-0.5 rounded text-xs font-bold mt-0.5">1</span>
+                        <div>
+                            <p class="font-bold text-white mb-1">Download App</p>
+                            <p class="text-xs text-gray-400">Download <b>Outline Client</b> from App Store, Google Play, or Windows Store.</p>
+                        </div>
+                    </div>
+                    <div class="bg-black/40 p-4 rounded-xl border border-white/5 flex gap-3 items-start">
+                        <span class="bg-emerald-700 text-white px-2 py-0.5 rounded text-xs font-bold mt-0.5">2</span>
+                        <div>
+                            <p class="font-bold text-white mb-1">Copy Key</p>
+                            <p class="text-xs text-gray-400">Click the green <b>"COPY OUTLINE KEY"</b> button on your dashboard.</p>
+                        </div>
+                    </div>
+                    <div class="bg-black/40 p-4 rounded-xl border border-white/5 flex gap-3 items-start">
+                        <span class="bg-emerald-700 text-white px-2 py-0.5 rounded text-xs font-bold mt-0.5">3</span>
+                        <div>
+                            <p class="font-bold text-white mb-1">Connect</p>
+                            <p class="text-xs text-gray-400">Open the Outline App. It will automatically detect your copied key. Click <b>"Add Server"</b> and then <b>"Connect"</b>.</p>
+                        </div>
+                    </div>
+                </div>
+                
+                <a href="https://t.me/YourTelegramUsername" target="_blank" class="mt-6 w-full bg-emerald-700/20 border border-emerald-600/30 hover:bg-emerald-600/40 text-emerald-400 py-3 rounded-xl font-bold transition-all flex items-center justify-center gap-2">
+                    <i class="fa-solid fa-headset"></i> Need Help? Contact Admin
+                </a>
+            </div>
+        </div>
+
     </div>
 
     <script type="module">
         import { initializeApp } from "https://www.gstatic.com/firebasejs/10.8.1/firebase-app.js";
-        import { getFirestore, doc, onSnapshot, setDoc } from "https://www.gstatic.com/firebasejs/10.8.1/firebase-firestore.js";
+        import { getFirestore, doc, onSnapshot, setDoc, getDoc } from "https://www.gstatic.com/firebasejs/10.8.1/firebase-firestore.js";
 
-        // ✨ Device OS Detection Function
+        // ✨ FIXED: Device OS Detection
         function getDeviceOS() {
-            const ua = navigator.userAgent;
+            const ua = navigator.userAgent || navigator.vendor || window.opera;
+            if (/windows phone/i.test(ua)) return { name: "Windows Phone", icon: "fa-windows" };
+            if (/iPad|iPhone|iPod/.test(ua) || (navigator.platform === 'MacIntel' && navigator.maxTouchPoints > 1)) {
+                return { name: "iOS", icon: "fa-apple" };
+            }
             if (/android/i.test(ua)) return { name: "Android", icon: "fa-android" };
-            if (/iPad|iPhone|iPod/.test(ua)) return { name: "iOS", icon: "fa-apple" };
-            if (/Macintosh|Mac OS X/.test(ua)) return { name: "Mac", icon: "fa-apple" };
+            if (/Macintosh|Mac OS X/i.test(ua)) return { name: "Mac", icon: "fa-apple" };
             if (/windows/i.test(ua)) return { name: "Windows", icon: "fa-windows" };
             if (/linux/i.test(ua)) return { name: "Linux", icon: "fa-linux" };
             return { name: "Unknown", icon: "fa-desktop" };
         }
 
         const currentDevice = getDeviceOS();
-        document.getElementById('device-icon').className = `fa-brands ${currentDevice.icon} text-indigo-400`;
+        document.getElementById('device-icon').className = `fa-brands ${currentDevice.icon} text-emerald-400`;
         document.getElementById('device-text').innerText = currentDevice.name;
 
-        // Firebase Config
         const firebaseConfig = { apiKey: "AIzaSyCiibkAoIbkTAfZRILSfx3qA2SjNFEdB5U", authDomain: "vpn-pane.firebaseapp.com", projectId: "vpn-pane", storageBucket: "vpn-pane.firebasestorage.app", messagingSenderId: "1094380249696", appId: "1:1094380249696:web:d94f63c4f7170654415905" };
         const app = initializeApp(firebaseConfig);
         const db = getFirestore(app);
 
-        let outQR = new QRCode(document.getElementById("out-qr"), { width: 120, height: 120, colorDark : "#000000", colorLight : "#ffffff" });
+        let outQR = new QRCode(document.getElementById("out-qr"), { width: 100, height: 100, colorDark : "#000000", colorLight : "#ffffff" });
 
         function updateProgress(used, total) {
             document.getElementById('out-used-show').innerText = used; document.getElementById('out-total-show').innerText = total;
             let percent = total > 0 ? Math.min((used / total) * 100, 100) : 0;
             setTimeout(() => {
                 document.getElementById('out-progress').style.width = `${percent}%`; document.getElementById('out-percent-text').innerText = `${Math.round(percent)}%`;
-                if(percent > 90) { document.getElementById('out-progress').classList.replace('from-indigo-600', 'from-red-500'); document.getElementById('out-progress').classList.replace('to-blue-400', 'to-orange-500'); document.getElementById('out-percent-text').classList.add('text-red-400'); }
+                if(percent > 90) { document.getElementById('out-progress').classList.replace('from-emerald-600', 'from-red-500'); document.getElementById('out-progress').classList.replace('to-green-400', 'to-orange-500'); document.getElementById('out-percent-text').classList.add('text-red-400'); }
             }, 600);
         }
 
-        // Advanced Copy Logic
         window.copyKey = function(elementId) {
             const inputElement = document.getElementById(elementId);
             inputElement.type = 'text'; inputElement.select(); inputElement.setSelectionRange(0, 99999); 
@@ -159,15 +199,10 @@
             }).catch(err => { alert("Failed to copy automatically."); inputElement.type = 'password'; });
         };
 
-        // Fetch User Data via URL Param
-        window.addEventListener('load', () => {
-            const overlay = document.getElementById('startup-overlay');
-            const mainWrapper = document.getElementById('main-wrapper');
-            const errorSection = document.getElementById('error-section');
-            const dashboardSection = document.getElementById('dashboard-section');
-
-            const urlParams = new URLSearchParams(window.location.search);
-            let rawId = urlParams.get('id');
+        // ✨ FIXED: Load logic prevents infinite loops
+        window.addEventListener('load', async () => {
+            const overlay = document.getElementById('startup-overlay'); const mainWrapper = document.getElementById('main-wrapper'); const errorSection = document.getElementById('error-section'); const dashboardSection = document.getElementById('dashboard-section');
+            const urlParams = new URLSearchParams(window.location.search); let rawId = urlParams.get('id');
 
             if(!rawId) {
                 setTimeout(() => { overlay.style.opacity = '0'; setTimeout(() => { overlay.style.visibility = 'hidden'; errorSection.classList.remove('hidden'); mainWrapper.classList.remove('opacity-0'); }, 800); }, 1800);
@@ -176,27 +211,31 @@
 
             let TARGET_USER_ID = rawId.split(']')[0].split(')')[0].trim().toUpperCase();
 
-            onSnapshot(doc(db, "users", TARGET_USER_ID), (docSnap) => {
-                if (docSnap.exists()) {
-                    const data = docSnap.data();
+            try {
+                const docRef = doc(db, "users", TARGET_USER_ID);
+                const checkDoc = await getDoc(docRef);
+                
+                if(checkDoc.exists()) {
+                    await setDoc(docRef, { lastActiveOutline: new Date().toISOString(), deviceOS: currentDevice.name }, { merge: true });
                     
-                    // ✨ Write live device tracking data to Firebase
-                    setDoc(doc(db, "users", TARGET_USER_ID), { 
-                        lastActiveOutline: new Date().toISOString(), 
-                        deviceOS: currentDevice.name 
-                    }, { merge: true });
-
-                    document.getElementById('display-name').innerText = data.displayName || TARGET_USER_ID;
-                    updateProgress(data.outlineUsedGB || 0, data.outlineTotalGB || 0);
-                    document.getElementById('out-expire-show').innerText = data.outlineExpireDate || "No Date";
-                    document.getElementById('out-key-hidden').value = data.outlineKey || "No Key Assigned";
-                    if(data.outlineKey) outQR.makeCode(data.outlineKey); else outQR.clear();
-                    
-                    setTimeout(() => { overlay.style.opacity = '0'; setTimeout(() => { overlay.style.visibility = 'hidden'; dashboardSection.classList.remove('hidden'); mainWrapper.classList.remove('opacity-0'); }, 800); }, 1800);
+                    onSnapshot(docRef, (docSnap) => {
+                        if (docSnap.exists()) {
+                            const data = docSnap.data();
+                            document.getElementById('display-name').innerText = data.displayName || TARGET_USER_ID;
+                            updateProgress(data.outlineUsedGB || 0, data.outlineTotalGB || 0);
+                            document.getElementById('out-expire-show').innerText = data.outlineExpireDate || "No Date";
+                            document.getElementById('out-key-hidden').value = data.outlineKey || "No Key Assigned";
+                            if(data.outlineKey) { outQR.clear(); outQR.makeCode(data.outlineKey); } else { outQR.clear(); }
+                            
+                            setTimeout(() => { overlay.style.opacity = '0'; setTimeout(() => { overlay.style.visibility = 'hidden'; dashboardSection.classList.remove('hidden'); mainWrapper.classList.remove('opacity-0'); }, 800); }, 1800);
+                        }
+                    });
                 } else {
                     setTimeout(() => { overlay.style.opacity = '0'; setTimeout(() => { overlay.style.visibility = 'hidden'; errorSection.classList.remove('hidden'); mainWrapper.classList.remove('opacity-0'); }, 800); }, 1800);
                 }
-            });
+            } catch(e) {
+                setTimeout(() => { overlay.style.opacity = '0'; setTimeout(() => { overlay.style.visibility = 'hidden'; errorSection.classList.remove('hidden'); mainWrapper.classList.remove('opacity-0'); }, 800); }, 1800);
+            }
         });
     </script>
 </body>
