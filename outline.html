@@ -140,10 +140,6 @@
                         </div>
                     </div>
                 </div>
-                
-                <a href="https://t.me/YourTelegramUsername" target="_blank" class="mt-6 w-full bg-emerald-700/20 border border-emerald-600/30 hover:bg-emerald-600/40 text-emerald-400 py-3 rounded-xl font-bold transition-all flex items-center justify-center gap-2">
-                    <i class="fa-solid fa-headset"></i> Need Help? Contact Admin
-                </a>
             </div>
         </div>
 
@@ -153,7 +149,6 @@
         import { initializeApp } from "https://www.gstatic.com/firebasejs/10.8.1/firebase-app.js";
         import { getFirestore, doc, onSnapshot, setDoc, getDoc } from "https://www.gstatic.com/firebasejs/10.8.1/firebase-firestore.js";
 
-        // ✨ FIXED: Device OS Detection
         function getDeviceOS() {
             const ua = navigator.userAgent || navigator.vendor || window.opera;
             if (/windows phone/i.test(ua)) return { name: "Windows Phone", icon: "fa-windows" };
@@ -171,7 +166,14 @@
         document.getElementById('device-icon').className = `fa-brands ${currentDevice.icon} text-emerald-400`;
         document.getElementById('device-text').innerText = currentDevice.name;
 
-        const firebaseConfig = { apiKey: "AIzaSyCiibkAoIbkTAfZRILSfx3qA2SjNFEdB5U", authDomain: "vpn-pane.firebaseapp.com", projectId: "vpn-pane", storageBucket: "vpn-pane.firebasestorage.app", messagingSenderId: "1094380249696", appId: "1:1094380249696:web:d94f63c4f7170654415905" };
+        const firebaseConfig = { 
+            apiKey: "AIzaSyCiibkAoIbkTAfZRILSfx3qA2SjNFEdB5U", 
+            authDomain: "vpn-pane.firebaseapp.com", 
+            projectId: "vpn-pane", 
+            storageBucket: "vpn-pane.firebasestorage.app", 
+            messagingSenderId: "1094380249696", 
+            appId: "1:1094380249696:web:d94f63c4f7170654415905" 
+        };
         const app = initializeApp(firebaseConfig);
         const db = getFirestore(app);
 
@@ -199,7 +201,6 @@
             }).catch(err => { alert("Failed to copy automatically."); inputElement.type = 'password'; });
         };
 
-        // ✨ FIXED: Load logic prevents infinite loops
         window.addEventListener('load', async () => {
             const overlay = document.getElementById('startup-overlay'); const mainWrapper = document.getElementById('main-wrapper'); const errorSection = document.getElementById('error-section'); const dashboardSection = document.getElementById('dashboard-section');
             const urlParams = new URLSearchParams(window.location.search); let rawId = urlParams.get('id');
