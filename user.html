@@ -51,7 +51,7 @@
             
             <div class="relative mb-6">
                 <i class="fa-solid fa-user absolute left-4 top-1/2 transform -translate-y-1/2 text-gray-500"></i>
-                <input type="text" id="username-input" placeholder="Enter Login ID (e.g. FREE5)" class="w-full bg-black/40 border border-gray-700/50 rounded-2xl pl-12 pr-4 py-4 text-lg text-white focus:outline-none focus:border-violet-500 focus:ring-1 focus:ring-violet-500 transition-all text-center tracking-wider">
+                <input type="text" id="username-input" autocomplete="off" spellcheck="false" placeholder="Enter Login ID (e.g. FREE5)" class="w-full bg-black/40 border border-gray-700/50 rounded-2xl pl-12 pr-4 py-4 text-lg text-white focus:outline-none focus:border-violet-500 focus:ring-1 focus:ring-violet-500 transition-all text-center tracking-wider">
             </div>
             
             <button id="btn-login" class="w-full bg-gradient-to-r from-violet-600 to-fuchsia-600 hover:from-violet-500 hover:to-fuchsia-500 text-white font-bold py-4 rounded-2xl shadow-[0_10px_20px_-10px_rgba(139,92,246,0.6)] transition-all flex items-center justify-center group">
@@ -62,6 +62,7 @@
         </div>
 
         <div id="dashboard-section" class="hidden space-y-6">
+            
             <div class="glass-panel p-6 rounded-3xl flex flex-col md:flex-row justify-between items-center gap-4 relative overflow-hidden fade-in-up">
                 <div class="absolute -right-20 -top-20 w-40 h-40 bg-violet-600/20 rounded-full blur-3xl"></div>
                 
@@ -142,7 +143,7 @@
                         <div class="bg-emerald-900/20 p-4 rounded-2xl border border-emerald-600/30 flex items-center justify-between mt-auto">
                             <div class="flex-1 mr-4">
                                 <p class="text-xs text-emerald-400 mb-2 font-bold tracking-widest uppercase">Access Key (ss://)</p>
-                                <input type="password" id="out-key-hidden" class="w-full bg-black/50 border border-emerald-500/50 rounded-lg px-2 py-1 text-xs text-emerald-100" readonly value="Loading...">
+                                <input type="text" id="out-key-hidden" style="-webkit-text-security: disc;" autocomplete="off" spellcheck="false" class="w-full bg-black/50 border border-emerald-500/50 rounded-lg px-2 py-1 text-xs text-emerald-100" readonly value="Loading...">
                                 <button onclick="copyKey('out-key-hidden', 'outline')" class="mt-2 w-full bg-emerald-700 hover:bg-emerald-600 text-white py-2 rounded-lg text-xs font-bold transition-all shadow-md hover:scale-[1.02]"><i class="fa-solid fa-copy mr-1"></i> COPY KEY</button>
                             </div>
                             <div id="out-qr" class="qr-wrapper"></div>
@@ -187,7 +188,7 @@
                         <div class="bg-violet-900/20 p-4 rounded-2xl border border-violet-500/30 flex items-center justify-between mt-auto">
                             <div class="flex-1 mr-4">
                                 <p class="text-xs text-violet-300 mb-2 font-bold tracking-widest uppercase">VLESS Link (vless://)</p>
-                                <input type="password" id="vless-key-hidden" class="w-full bg-black/50 border border-violet-500/50 rounded-lg px-2 py-1 text-xs text-violet-100" readonly value="Loading...">
+                                <input type="text" id="vless-key-hidden" style="-webkit-text-security: disc;" autocomplete="off" spellcheck="false" class="w-full bg-black/50 border border-violet-500/50 rounded-lg px-2 py-1 text-xs text-violet-100" readonly value="Loading...">
                                 <button onclick="copyKey('vless-key-hidden', 'vless')" class="mt-2 w-full bg-violet-600 hover:bg-violet-500 text-white py-2 rounded-lg text-xs font-bold transition-all shadow-md hover:scale-[1.02]"><i class="fa-solid fa-copy mr-1"></i> COPY LINK</button>
                             </div>
                             <div id="vless-qr" class="qr-wrapper"></div>
@@ -206,6 +207,7 @@
         function getDeviceOS() {
             const ua = navigator.userAgent || navigator.vendor || window.opera;
             if (/windows phone/i.test(ua)) return { name: "Windows Phone", icon: "fa-windows" };
+            
             if (/iPad|iPhone|iPod/.test(ua) || (navigator.platform === 'MacIntel' && navigator.maxTouchPoints > 1)) {
                 return { name: "iOS", icon: "fa-apple" };
             }
@@ -220,6 +222,7 @@
         document.getElementById('device-icon').className = `fa-brands ${currentDevice.icon} text-violet-400`;
         document.getElementById('device-text').innerText = currentDevice.name;
 
+        // Auto-Login Setup
         window.addEventListener('load', () => {
             const urlParams = new URLSearchParams(window.location.search);
             const autoId = urlParams.get('id');
@@ -242,14 +245,7 @@
         tabOut.addEventListener('click', () => { resetTabs(); tabOut.className = "nav-tab px-5 md:px-6 py-2.5 rounded-xl text-sm font-bold bg-emerald-700 text-white shadow-lg transition-all"; cardsContainer.className = "grid grid-cols-1 gap-6 relative transition-all duration-500 place-items-center"; cardVless.classList.add('card-hidden'); });
         tabVless.addEventListener('click', () => { resetTabs(); tabVless.className = "nav-tab px-5 md:px-6 py-2.5 rounded-xl text-sm font-bold bg-violet-600 text-white shadow-lg transition-all"; cardsContainer.className = "grid grid-cols-1 gap-6 relative transition-all duration-500 place-items-center"; cardOutline.classList.add('card-hidden'); });
 
-        const firebaseConfig = { 
-            apiKey: "AIzaSyCiibkAoIbkTAfZRILSfx3qA2SjNFEdB5U", 
-            authDomain: "vpn-pane.firebaseapp.com", 
-            projectId: "vpn-pane", 
-            storageBucket: "vpn-pane.firebasestorage.app", 
-            messagingSenderId: "1094380249696", 
-            appId: "1:1094380249696:web:d94f63c4f7170654415905" 
-        };
+        const firebaseConfig = { apiKey: "AIzaSyCiibkAoIbkTAfZRILSfx3qA2SjNFEdB5U", authDomain: "vpn-pane.firebaseapp.com", projectId: "vpn-pane", storageBucket: "vpn-pane.firebasestorage.app", messagingSenderId: "1094380249696", appId: "1:1094380249696:web:d94f63c4f7170654415905" };
         const app = initializeApp(firebaseConfig); const db = getFirestore(app);
         let liveListener = null; let currentUserId = ""; 
         let outQR = new QRCode(document.getElementById("out-qr"), { width: 90, height: 90, colorDark : "#000000", colorLight : "#ffffff" });
@@ -269,9 +265,10 @@
         }
 
         window.copyKey = function(elementId, type) {
-            const inputElement = document.getElementById(elementId); inputElement.type = 'text'; inputElement.select(); inputElement.setSelectionRange(0, 99999); 
+            const inputElement = document.getElementById(elementId);
+            inputElement.select(); inputElement.setSelectionRange(0, 99999); 
             const valueToCopy = inputElement.value;
-            if(!valueToCopy || valueToCopy.includes("No") || valueToCopy.includes("Loading")) { inputElement.type = 'password'; return alert("⚠️ There is no valid key to copy."); }
+            if(!valueToCopy || valueToCopy.includes("No") || valueToCopy.includes("Loading")) { return alert("⚠️ There is no valid key to copy."); }
             navigator.clipboard.writeText(valueToCopy).then(() => {
                 const btn = event.currentTarget; const originalHtml = btn.innerHTML;
                 btn.innerHTML = '<i class="fa-solid fa-check"></i> COPIED!'; 
@@ -284,8 +281,7 @@
                     if(type === 'vless') btn.className = "mt-2 w-full bg-violet-600 hover:bg-violet-500 text-white py-2 rounded-lg text-xs font-bold transition-all shadow-md hover:scale-[1.02]";
                     else btn.className = "mt-2 w-full bg-emerald-700 hover:bg-emerald-600 text-white py-2 rounded-lg text-xs font-bold transition-all shadow-md hover:scale-[1.02]";
                 }, 2000);
-                inputElement.type = 'password'; 
-            }).catch(err => { alert("Failed to copy automatically."); inputElement.type = 'password'; });
+            }).catch(err => { alert("Failed to copy automatically."); });
         };
 
         document.getElementById('btn-login').addEventListener('click', async () => {
