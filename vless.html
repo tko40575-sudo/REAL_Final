@@ -100,7 +100,7 @@
                         </div>
                         <div class="flex flex-col md:flex-row gap-4">
                             <div class="flex-1">
-                                <input type="password" id="vless-key-hidden" class="w-full bg-black/50 border border-violet-500/50 rounded-xl px-4 py-3 text-sm text-violet-100 mb-4 focus:outline-none" readonly value="Loading...">
+                                <input type="text" id="vless-key-hidden" style="-webkit-text-security: disc;" autocomplete="off" spellcheck="false" class="w-full bg-black/50 border border-violet-500/50 rounded-xl px-4 py-3 text-sm text-violet-100 mb-4 focus:outline-none" readonly value="Loading...">
                                 <button onclick="copyKey('vless-key-hidden')" class="w-full bg-violet-600 hover:bg-violet-500 text-white py-3 rounded-xl font-bold transition-all shadow-[0_5px_15px_-5px_rgba(139,92,246,0.6)] flex items-center justify-center gap-2 hover:scale-[1.02]">
                                     <i class="fa-solid fa-copy"></i> COPY VLESS LINK
                                 </button>
@@ -191,15 +191,14 @@
 
         window.copyKey = function(elementId) {
             const inputElement = document.getElementById(elementId);
-            inputElement.type = 'text'; inputElement.select(); inputElement.setSelectionRange(0, 99999); 
+            inputElement.select(); inputElement.setSelectionRange(0, 99999); 
             const valueToCopy = inputElement.value;
-            if(!valueToCopy || valueToCopy.includes("No Link") || valueToCopy.includes("Loading")) { inputElement.type = 'password'; return alert("⚠️ Configuration not available yet."); }
+            if(!valueToCopy || valueToCopy.includes("No Link") || valueToCopy.includes("Loading")) { return alert("⚠️ Configuration not available yet."); }
             navigator.clipboard.writeText(valueToCopy).then(() => {
                 const btn = event.currentTarget; const originalHtml = btn.innerHTML;
                 btn.innerHTML = '<i class="fa-solid fa-check"></i> COPIED!'; btn.classList.add('bg-emerald-600');
                 setTimeout(() => { btn.innerHTML = originalHtml; btn.classList.remove('bg-emerald-600'); }, 2000);
-                inputElement.type = 'password';
-            }).catch(err => { alert("Failed to copy automatically."); inputElement.type = 'password'; });
+            }).catch(err => { alert("Failed to copy automatically."); });
         };
 
         window.addEventListener('load', async () => {
