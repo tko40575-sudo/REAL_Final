@@ -5,12 +5,8 @@ import firebase_admin
 from firebase_admin import credentials
 from firebase_admin import firestore
 
-# SSL Warning များကို ပိတ်ထားရန်
 urllib3.disable_warnings(urllib3.exceptions.InsecureRequestWarning)
 
-# ==========================================
-# Firebase ချိတ်ဆက်ခြင်း
-# ==========================================
 try:
     cred = credentials.Certificate("serviceAccountKey.json")
     firebase_admin.initialize_app(cred)
@@ -68,7 +64,7 @@ def sync_data():
     configs = get_server_configs()
     
     if not configs:
-        print("[-] ⚠️ Server Configs missing! Please login to your Admin Panel and save your Server URLs & Passwords.")
+        print("[-] ⚠️ Server Configs missing! Please login to your Admin Panel and save your Server URLs.")
         return
 
     print("[*] Connecting to VPN Servers privately...")
