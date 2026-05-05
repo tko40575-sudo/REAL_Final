@@ -6,12 +6,8 @@ import firebase_admin
 from firebase_admin import credentials, firestore
 from datetime import datetime
 
-# SSL Warning များကို ပိတ်ထားရန်
 urllib3.disable_warnings(urllib3.exceptions.InsecureRequestWarning)
 
-# ==========================================
-# Firebase ချိတ်ဆက်ခြင်း
-# ==========================================
 try:
     cred = credentials.Certificate("serviceAccountKey.json")
     firebase_admin.initialize_app(cred)
@@ -23,6 +19,7 @@ except Exception as e:
 
 def get_server_configs():
     try:
+        # Admin Panel မှ ပြောင်းလဲထားသော API Settings များကို ချက်ချင်းယူပါမည်
         doc = db.collection("admin_config").document("server_api").get()
         if doc.exists: return doc.to_dict()
     except Exception as e:
@@ -37,7 +34,6 @@ def get_outline_usage(api_url):
     except Exception as e: return {}
 
 def suspend_outline_user(api_url, outline_id):
-    """ Outline User ကို Data Limit 0 ပေးပြီး ပိတ်ပစ်မည် """
     try:
         url = f"{api_url}/access-keys/{outline_id}/data-limit"
         requests.put(url, json={"limit": {"bytes": 0}}, verify=False, timeout=10)
@@ -46,7 +42,6 @@ def suspend_outline_user(api_url, outline_id):
         print(f"   [-] Outline Suspend Error: {e}")
 
 def suspend_xui_user(xui_url, session, email):
-    """ X-UI User ကို ပိတ်ရန် (Sanaei 3x-ui API အသုံးပြုသည်) """
     try:
         res = session.get(f"{xui_url}/panel/api/inbounds", timeout=10)
         inbounds = res.json().get('obj', [])
@@ -59,7 +54,6 @@ def suspend_xui_user(xui_url, session, email):
             for client in clients:
                 if client.get('email') == email and client.get('enable', True) == True:
                     client_uuid = client.get('id')
-                    # User ကို enable: false ပြောင်းပြီး ပိတ်ပါမည်
                     suspend_url = f"{xui_url}/panel/api/inbounds/updateClient/{client_uuid}"
                     client['enable'] = False 
                     
@@ -112,9 +106,7 @@ def sync_data():
         user_data = doc.to_dict()
         update_fields = {}
         
-        # ==========================================
-        # 1. OUTLINE SYNC & SUSPEND CHECK
-        # ==========================================
+        # 1. OUTLINE SYNC
         outline_id = user_data.get('outlineId', user_id)
         out_used_gb = user_data.get('outlineUsedGB', 0)
         out_total_gb = float(user_data.get('outlineTotalGB', 0))
@@ -125,7 +117,6 @@ def sync_data():
             out_used_gb = outline_data[outline_id] / (1024 ** 3)
             update_fields['outlineUsedGB'] = round(out_used_gb, 3)
 
-        # Check Limits for Outline
         out_is_expired = False
         if out_expire:
             try:
@@ -135,13 +126,11 @@ def sync_data():
 
         if out_status != 'Suspended':
             if (out_total_gb > 0 and out_used_gb >= out_total_gb) or out_is_expired:
-                print(f"[!] Outline Auto-Suspend Triggered for {user_id} | Over Limit or Expired")
+                print(f"[!] Outline Auto-Suspend Triggered for {user_id}")
                 suspend_outline_user(configs.get("outline_url"), outline_id)
                 update_fields['outlineStatus'] = 'Suspended'
 
-        # ==========================================
-        # 2. VLESS (X-UI) SYNC & SUSPEND CHECK
-        # ==========================================
+        # 2. VLESS SYNC
         vless_used_gb = user_data.get('vlessUsedGB', 0)
         vless_total_gb = float(user_data.get('vlessTotalGB', 0))
         vless_expire = user_data.get('vlessExpireDate', '')
@@ -151,7 +140,6 @@ def sync_data():
             vless_used_gb = xui_data[user_id] / (1024 ** 3)
             update_fields['vlessUsedGB'] = round(vless_used_gb, 3)
 
-        # Check Limits for VLESS
         vless_is_expired = False
         if vless_expire:
             try:
@@ -161,11 +149,10 @@ def sync_data():
 
         if vless_status != 'Suspended' and xui_session:
             if (vless_total_gb > 0 and vless_used_gb >= vless_total_gb) or vless_is_expired:
-                print(f"[!] VLESS Auto-Suspend Triggered for {user_id} | Over Limit or Expired")
+                print(f"[!] VLESS Auto-Suspend Triggered for {user_id}")
                 suspend_xui_user(configs.get("xui_url"), xui_session, user_id)
                 update_fields['vlessStatus'] = 'Suspended'
 
-        # Update Database if changes occurred
         if update_fields:
             users_ref.document(user_id).update(update_fields)
             print(f"[+] Synced User {user_id}")
@@ -176,4 +163,4 @@ if __name__ == "__main__":
     print("🚀 Private Secure Auto-Sync & AI Suspend Bot Started!")
     while True:
         sync_data()
-        time.sleep(60) # ၁ မိနစ်တစ်ခါ စစ်ဆေးမည်
+        time.sleep(60)
