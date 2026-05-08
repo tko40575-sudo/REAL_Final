@@ -223,7 +223,6 @@
         import { initializeApp } from "https://www.gstatic.com/firebasejs/10.8.1/firebase-app.js";
         import { getFirestore, doc, getDoc, setDoc, collection, getDocs } from "https://www.gstatic.com/firebasejs/10.8.1/firebase-firestore.js";
 
-        // IMPORTANT: Replace with your actual Firebase Config
         const firebaseConfig = { 
             apiKey: "AIzaSyCiibkAoIbkTAfZRILSfx3qA2SjNFEdB5U", 
             authDomain: "vpn-pane.firebaseapp.com", 
@@ -308,9 +307,7 @@
                 statusMsg.innerHTML = `<i class="fa-solid fa-check mr-2"></i> Loaded existing user: <b class="text-white">${username}</b>`;
                 statusMsg.className = "mt-4 text-sm bg-emerald-500/10 text-emerald-400 px-4 py-2 rounded-lg border border-emerald-500/20 inline-block";
                 
-                // Fetching Display Name
                 document.getElementById('user-display-name').value = data.displayName || ""; 
-
                 document.getElementById('out-key').value = data.outlineKey || ""; 
                 document.getElementById('out-total').value = data.outlineTotalGB || 0; 
                 document.getElementById('out-expire').value = data.outlineExpireDate || "";
@@ -320,7 +317,11 @@
             } else {
                 statusMsg.innerHTML = `<i class="fa-solid fa-user-plus mr-2"></i> Creating new user profile for: <b class="text-white">${username}</b>`;
                 statusMsg.className = "mt-4 text-sm bg-orange-500/10 text-orange-400 px-4 py-2 rounded-lg border border-orange-500/20 inline-block";
-                document.querySelectorAll('#editor-section input[type="text"]:not(#auto-link-outline):not(#auto-link-vless):not(#auto-link-user), #editor-section input[type="number"], #editor-section input[type="date"]').forEach(inp => inp.value = "");
+                
+                document.querySelectorAll('#editor-section input[type="text"]:not(#auto-link-outline):not(#auto-link-vless):not(#auto-link-user), #editor-section input[type="date"]').forEach(inp => inp.value = "");
+                
+                document.getElementById('out-total').value = "0";
+                document.getElementById('vless-total').value = "0";
             }
             
             editorSec.classList.remove('hidden');
@@ -361,7 +362,7 @@
             btn.innerHTML = '<i class="fa-solid fa-spinner fa-spin"></i> COMMITTING...';
 
             await setDoc(doc(db, "users", username), {
-                displayName: document.getElementById('user-display-name').value.trim(), // Save Display Name
+                displayName: document.getElementById('user-display-name').value.trim(),
                 outlineKey: document.getElementById('out-key').value.trim(), 
                 outlineTotalGB: Number(document.getElementById('out-total').value) || 0, 
                 outlineExpireDate: document.getElementById('out-expire').value || "",
