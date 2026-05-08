@@ -6,7 +6,7 @@ import firebase_admin
 from firebase_admin import credentials, firestore
 from datetime import datetime
 
-# SSL Warning များကို ပိတ်ထားရန်
+# SSL Warning ပိတ်ထားရန်
 urllib3.disable_warnings(urllib3.exceptions.InsecureRequestWarning)
 
 # ==========================================
@@ -22,158 +22,140 @@ except Exception as e:
     exit(1)
 
 def get_server_configs():
-    try:
-        doc = db.collection("admin_config").document("server_api").get()
-        if doc.exists: return doc.to_dict()
-    except Exception as e:
-        print(f"[-] Error fetching configs: {e}")
-    return None
-
-def get_outline_usage(api_url):
-    if not api_url: return {}
-    try:
-        res = requests.get(f"{api_url}/metrics/transfer", verify=False, timeout=10)
-        return res.json().get('bytesTransferredByUserId', {})
-    except Exception as e: return {}
-
-def suspend_outline_user(api_url, outline_id):
-    """ Outline User ကို Data Limit 0 ပေးပြီး ပိတ်ပစ်မည် """
-    try:
-        url = f"{api_url}/access-keys/{outline_id}/data-limit"
-        requests.put(url, json={"limit": {"bytes": 0}}, verify=False, timeout=10)
-        print(f"   [🚫] Outline User {outline_id} Suspended Successfully.")
-    except Exception as e:
-        print(f"   [-] Outline Suspend Error: {e}")
-
-def suspend_xui_user(xui_url, session, email):
-    """ X-UI User ကို ပိတ်ရန် (Sanaei 3x-ui API အသုံးပြုသည်) """
-    try:
-        res = session.get(f"{xui_url}/panel/api/inbounds", timeout=10)
-        inbounds = res.json().get('obj', [])
-        
-        for inbound in inbounds:
-            inbound_id = inbound.get('id')
-            settings = json.loads(inbound.get('settings', '{}'))
-            clients = settings.get('clients', [])
-            
-            for client in clients:
-                if client.get('email') == email and client.get('enable', True) == True:
-                    client_uuid = client.get('id')
-                    # User ကို enable: false ပြောင်းပြီး ပိတ်ပါမည်
-                    suspend_url = f"{xui_url}/panel/api/inbounds/updateClient/{client_uuid}"
-                    client['enable'] = False 
-                    
-                    payload = {
-                        "id": inbound_id,
-                        "settings": json.dumps({"clients": [client]})
-                    }
-                    update_res = session.post(suspend_url, data=payload, timeout=10)
-                    if update_res.status_code == 200:
-                        print(f"   [🚫] VLESS User {email} Suspended Successfully.")
-                    return
-    except Exception as e:
-        print(f"   [-] X-UI Suspend Error: {e}")
-
-def get_xui_usage_and_session(configs):
-    xui_url, xui_user, xui_pass = configs.get("xui_url"), configs.get("xui_user"), configs.get("xui_pass")
-    if not xui_url or not xui_user: return {}, None
-    try:
-        session = requests.Session()
-        session.post(f"{xui_url}/login", data={'username': xui_user, 'password': xui_pass}, timeout=10)
-        
-        res = session.get(f"{xui_url}/panel/api/inbounds", timeout=10)
-        inbounds = res.json().get('obj', [])
-        
-        xui_usage = {}
-        for inbound in inbounds:
-            client_stats = inbound.get('clientStats', [])
-            for client in client_stats:
-                email = client.get('email', '')
-                xui_usage[email] = client.get('up', 0) + client.get('down', 0)
-        return xui_usage, session
-    except Exception as e:
-        return {}, None
+    doc = db.collection("admin_config").document("server_api").get()
+    return doc.to_dict() if doc.exists else None
 
 def sync_data():
-    print("\n[*] Starting sync & security check...")
+    print("\n[*] Starting Real-time API Sync & Check...")
     configs = get_server_configs()
     if not configs: return print("[-] Server Configs missing!")
 
-    outline_data = get_outline_usage(configs.get("outline_url"))
-    xui_data, xui_session = get_xui_usage_and_session(configs)
-    
-    users_ref = db.collection('users')
-    docs = users_ref.stream()
-
+    outline_url = configs.get("outline_url")
+    xui_url, xui_user, xui_pass = configs.get("xui_url"), configs.get("xui_user"), configs.get("xui_pass")
     today = datetime.now().date()
 
-    for doc in docs:
+    # 1. OUTLINE API ကနေ Data တွေ ယူမယ်
+    outline_keys_map = {}
+    outline_usage = {}
+    if outline_url:
+        try:
+            # Get Usage
+            res_usage = requests.get(f"{outline_url}/metrics/transfer", verify=False, timeout=10)
+            outline_usage = res_usage.json().get('bytesTransferredByUserId', {})
+            # Get Keys info to map AccessURL to Outline ID
+            res_keys = requests.get(f"{outline_url}/access-keys", verify=False, timeout=10)
+            for k in res_keys.json().get('accessKeys', []):
+                outline_keys_map[k['accessUrl']] = k
+        except Exception as e:
+            print(f"[-] Outline API Error: {e}")
+
+    # 2. VLESS (X-UI) API ကနေ Data တွေ ယူမယ်
+    xui_clients_map = {} # email -> (inbound_id, client_dict)
+    xui_session = requests.Session()
+    if xui_url and xui_user:
+        try:
+            xui_session.post(f"{xui_url}/login", data={'username': xui_user, 'password': xui_pass}, timeout=10)
+            res_inb = xui_session.get(f"{xui_url}/panel/api/inbounds", timeout=10)
+            for inbound in res_inb.json().get('obj', []):
+                inb_id = inbound['id']
+                settings = json.loads(inbound.get('settings', '{}'))
+                for c in settings.get('clients', []):
+                    xui_clients_map[c['email']] = (inb_id, c)
+        except Exception as e:
+            print(f"[-] X-UI API Error: {e}")
+
+    # 3. Firebase ထဲက User တွေကို စစ်ပြီး Server နဲ့ အပြန်အလှန် Sync လုပ်မယ်
+    users_ref = db.collection('users')
+    for doc in users_ref.stream():
         user_id = doc.id 
         user_data = doc.to_dict()
         update_fields = {}
-        
-        # ==========================================
-        # 1. OUTLINE SYNC & SUSPEND CHECK
-        # ==========================================
-        outline_id = user_data.get('outlineId', user_id)
-        out_used_gb = user_data.get('outlineUsedGB', 0)
-        out_total_gb = float(user_data.get('outlineTotalGB', 0))
-        out_expire = user_data.get('outlineExpireDate', '')
-        out_status = user_data.get('outlineStatus', 'Active')
 
-        if outline_id in outline_data:
-            out_used_gb = outline_data[outline_id] / (1024 ** 3)
-            update_fields['outlineUsedGB'] = round(out_used_gb, 3)
+        # ==========================================
+        # [A] OUTLINE 2-WAY SYNC
+        # ==========================================
+        out_key_url = user_data.get('outlineKey', '')
+        if out_key_url in outline_keys_map:
+            out_client = outline_keys_map[out_key_url]
+            out_id = out_client['id']
+            
+            # Fetch Usage
+            used_bytes = outline_usage.get(out_id, 0)
+            update_fields['outlineUsedGB'] = round(used_bytes / (1024**3), 3)
 
-        # Check Limits for Outline
-        out_is_expired = False
-        if out_expire:
+            # Check Total Limit & Expiry
+            target_limit_gb = float(user_data.get('outlineTotalGB', 0))
+            is_expired = False
+            if user_data.get('outlineExpireDate'):
+                try:
+                    exp_date = datetime.strptime(user_data.get('outlineExpireDate'), "%Y-%m-%d").date()
+                    if today > exp_date: is_expired = True
+                except: pass
+
+            # Update Outline API limits directly if changed from Admin Panel
+            target_limit_bytes = int(target_limit_gb * (1024**3))
+            current_limit_bytes = out_client.get('dataLimit', {}).get('bytes')
+
+            if is_expired or (target_limit_gb > 0 and used_bytes >= target_limit_bytes):
+                # Auto Suspend by setting limit to 0
+                if current_limit_bytes != 0:
+                    requests.put(f"{outline_url}/access-keys/{out_id}/data-limit", json={"limit": {"bytes": 0}}, verify=False)
+                    print(f"   [🚫] Outline User {user_id} Auto-Suspended.")
+            else:
+                if target_limit_gb > 0 and current_limit_bytes != target_limit_bytes:
+                    # Sync new Limit to Outline Server
+                    requests.put(f"{outline_url}/access-keys/{out_id}/data-limit", json={"limit": {"bytes": target_limit_bytes}}, verify=False)
+                    print(f"   [✅] Outline API Updated (Limit: {target_limit_gb}GB) for {user_id}")
+                elif target_limit_gb == 0 and current_limit_bytes is not None:
+                    # 0 means Unlimited, remove limit
+                    requests.delete(f"{outline_url}/access-keys/{out_id}/data-limit", verify=False)
+                    print(f"   [✅] Outline API Updated (Unlimited) for {user_id}")
+
+        # ==========================================
+        # [B] VLESS (X-UI) 2-WAY SYNC
+        # ==========================================
+        if user_id in xui_clients_map:
+            inb_id, c_dict = xui_clients_map[user_id]
+            changed = False
+            
+            # Update Usage to Firebase (Total up + down)
             try:
-                exp_date = datetime.strptime(out_expire, "%Y-%m-%d").date()
-                if today > exp_date: out_is_expired = True
+                # Get specific stats for usage calculation
+                res_stats = xui_session.get(f"{xui_url}/panel/api/inbounds/getClientTraffics/{c_dict['email']}")
+                stats = res_stats.json().get('obj', {})
+                vless_used = (stats.get('up', 0) + stats.get('down', 0)) / (1024**3)
+                update_fields['vlessUsedGB'] = round(vless_used, 3)
             except: pass
 
-        if out_status != 'Suspended':
-            if (out_total_gb > 0 and out_used_gb >= out_total_gb) or out_is_expired:
-                print(f"[!] Outline Auto-Suspend Triggered for {user_id} | Over Limit or Expired")
-                suspend_outline_user(configs.get("outline_url"), outline_id)
-                update_fields['outlineStatus'] = 'Suspended'
+            # Check Limits & Expiry
+            target_vless_gb = int(float(user_data.get('vlessTotalGB', 0)) * (1024**3))
+            if c_dict.get('totalGB') != target_vless_gb:
+                c_dict['totalGB'] = target_vless_gb
+                changed = True
 
-        # ==========================================
-        # 2. VLESS (X-UI) SYNC & SUSPEND CHECK
-        # ==========================================
-        vless_used_gb = user_data.get('vlessUsedGB', 0)
-        vless_total_gb = float(user_data.get('vlessTotalGB', 0))
-        vless_expire = user_data.get('vlessExpireDate', '')
-        vless_status = user_data.get('vlessStatus', 'Active')
+            target_vless_exp = 0
+            if user_data.get('vlessExpireDate'):
+                exp_date = datetime.strptime(user_data.get('vlessExpireDate'), "%Y-%m-%d")
+                target_vless_exp = int(exp_date.timestamp() * 1000)
 
-        if user_id in xui_data:
-            vless_used_gb = xui_data[user_id] / (1024 ** 3)
-            update_fields['vlessUsedGB'] = round(vless_used_gb, 3)
+            if c_dict.get('expiryTime') != target_vless_exp:
+                c_dict['expiryTime'] = target_vless_exp
+                changed = True
 
-        # Check Limits for VLESS
-        vless_is_expired = False
-        if vless_expire:
-            try:
-                exp_date = datetime.strptime(vless_expire, "%Y-%m-%d").date()
-                if today > exp_date: vless_is_expired = True
-            except: pass
+            # If Admin updated Firebase, PUSH to X-UI Server natively!
+            if changed:
+                payload = {"id": inb_id, "settings": json.dumps({"clients": [c_dict]})}
+                xui_session.post(f"{xui_url}/panel/api/inbounds/updateClient/{c_dict['id']}", data=payload)
+                print(f"   [✅] VLESS API Updated (GB/Expiry Sync) for {user_id}")
 
-        if vless_status != 'Suspended' and xui_session:
-            if (vless_total_gb > 0 and vless_used_gb >= vless_total_gb) or vless_is_expired:
-                print(f"[!] VLESS Auto-Suspend Triggered for {user_id} | Over Limit or Expired")
-                suspend_xui_user(configs.get("xui_url"), xui_session, user_id)
-                update_fields['vlessStatus'] = 'Suspended'
-
-        # Update Database if changes occurred
+        # Save latest usage back to Firebase
         if update_fields:
             users_ref.document(user_id).update(update_fields)
-            print(f"[+] Synced User {user_id}")
 
     print("[*] Sync cycle complete.")
 
 if __name__ == "__main__":
-    print("🚀 Private Secure Auto-Sync & AI Suspend Bot Started!")
+    print("🚀 Auto-Sync & Real-Time API Configurator Started!")
     while True:
         sync_data()
-        time.sleep(60) # ၁ မိနစ်တစ်ခါ စစ်ဆေးမည်
+        time.sleep(30) # စက္ကန့် ၃၀ တစ်ခါ Server နဲ့ အပြန်အလှန် Sync လုပ်ပါမည်
