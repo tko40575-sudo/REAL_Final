@@ -222,7 +222,6 @@
         document.getElementById('device-icon').className = `fa-brands ${currentDevice.icon} text-violet-400`;
         document.getElementById('device-text').innerText = currentDevice.name;
 
-        // Auto-Login Setup
         window.addEventListener('load', () => {
             const urlParams = new URLSearchParams(window.location.search);
             const autoId = urlParams.get('id');
