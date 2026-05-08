@@ -98,6 +98,15 @@
 
             <div id="editor-section" class="glass-panel p-6 rounded-3xl hidden relative overflow-hidden transition-all duration-500 opacity-0 transform translate-y-4">
                 <div class="grid grid-cols-1 md:grid-cols-2 gap-6 z-10 relative">
+                    
+                    <div class="col-span-1 md:col-span-2 bg-black/30 p-5 rounded-2xl border border-pink-500/20">
+                        <h3 class="font-bold text-pink-300 mb-3"><i class="fa-solid fa-address-card mr-2"></i> User Profile Info</h3>
+                        <div>
+                            <label class="text-xs text-gray-400 uppercase">User Display Name (အမည်)</label>
+                            <input type="text" id="user-display-name" autocomplete="off" spellcheck="false" placeholder="ဥပမာ - Mg Mg" class="w-full bg-black/50 border border-pink-700/50 rounded-xl px-4 py-3 text-sm text-white focus:outline-none focus:border-pink-400 mt-1 transition-colors">
+                        </div>
+                    </div>
+
                     <div class="space-y-4 bg-black/30 p-5 rounded-2xl border border-indigo-500/20">
                         <h3 class="font-bold text-indigo-300"><i class="fa-solid fa-shield-halved mr-2"></i> Outline Config</h3>
                         <div>
@@ -193,7 +202,7 @@
                     <table class="glass-table w-full">
                         <thead>
                             <tr>
-                                <th>User ID</th>
+                                <th>User ID & Name</th>
                                 <th>Outline Usage</th>
                                 <th>VLESS Usage</th>
                                 <th>Device OS</th>
@@ -214,6 +223,7 @@
         import { initializeApp } from "https://www.gstatic.com/firebasejs/10.8.1/firebase-app.js";
         import { getFirestore, doc, getDoc, setDoc, collection, getDocs } from "https://www.gstatic.com/firebasejs/10.8.1/firebase-firestore.js";
 
+        // IMPORTANT: Replace with your actual Firebase Config
         const firebaseConfig = { 
             apiKey: "AIzaSyCiibkAoIbkTAfZRILSfx3qA2SjNFEdB5U", 
             authDomain: "vpn-pane.firebaseapp.com", 
@@ -298,6 +308,9 @@
                 statusMsg.innerHTML = `<i class="fa-solid fa-check mr-2"></i> Loaded existing user: <b class="text-white">${username}</b>`;
                 statusMsg.className = "mt-4 text-sm bg-emerald-500/10 text-emerald-400 px-4 py-2 rounded-lg border border-emerald-500/20 inline-block";
                 
+                // Fetching Display Name
+                document.getElementById('user-display-name').value = data.displayName || ""; 
+
                 document.getElementById('out-key').value = data.outlineKey || ""; 
                 document.getElementById('out-total').value = data.outlineTotalGB || 0; 
                 document.getElementById('out-expire').value = data.outlineExpireDate || "";
@@ -348,6 +361,7 @@
             btn.innerHTML = '<i class="fa-solid fa-spinner fa-spin"></i> COMMITTING...';
 
             await setDoc(doc(db, "users", username), {
+                displayName: document.getElementById('user-display-name').value.trim(), // Save Display Name
                 outlineKey: document.getElementById('out-key').value.trim(), 
                 outlineTotalGB: Number(document.getElementById('out-total').value) || 0, 
                 outlineExpireDate: document.getElementById('out-expire').value || "",
@@ -402,7 +416,7 @@
                         <tr>
                             <td>
                                 <div class="font-bold text-white">${id}</div>
-                                <div class="text-xs text-gray-500">${data.displayName || 'No name'}</div>
+                                <div class="text-xs text-pink-400 font-semibold">${data.displayName || 'No Name Set'}</div>
                             </td>
                             <td>
                                 <div class="font-bold ${outColor}">${outP}%</div>
