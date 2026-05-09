@@ -6,6 +6,7 @@
     <title>VVIP - YLT | Admin Control Center</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+    <script src="/socket.io/socket.io.js"></script>
     <style>
         @import url('https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;600;800&display=swap');
         body { background-color: #050505; background-image: radial-gradient(circle at 50% 0%, #1a1a2e 0%, #050505 70%); color: white; font-family: 'Outfit', sans-serif; min-height: 100vh; }
@@ -221,16 +222,21 @@
                 </div>
             </div>
         </div>
+
     </div>
 
-    <script src="/socket.io/socket.io.js"></script>
     <script>
+        // Init Socket.io
         const socket = io();
 
-        // UI toggles
-        document.getElementById('security-trigger').addEventListener('click', () => {
-            document.getElementById('security-content').classList.toggle('open');
-            document.getElementById('security-chevron').classList.toggle('open');
+        // Security Toggle
+        const securityTrigger = document.getElementById('security-trigger');
+        const securityContent = document.getElementById('security-content');
+        const securityChevron = document.getElementById('security-chevron');
+
+        securityTrigger.addEventListener('click', () => {
+            securityContent.classList.toggle('open');
+            securityChevron.classList.toggle('open');
         });
 
         // Tab Management
@@ -251,7 +257,7 @@
             navManage.className = "bg-black/50 text-gray-400 hover:text-white border border-white/10 px-5 py-2.5 rounded-xl text-sm font-bold transition-all";
             tabListContent.classList.remove('hidden');
             tabManageContent.classList.add('hidden');
-            socket.emit('admin_get_all_users');
+            loadAllUsers();
         });
 
         // API Type Selector Logic
@@ -285,30 +291,7 @@
         btnOut.addEventListener('click', () => setApiView('out'));
         btnVless.addEventListener('click', () => setApiView('vless'));
 
-        // Load Server Configs on start
-        socket.emit('admin_get_config');
-        socket.on('admin_config_data', (config) => {
-            if(config.outline_url) document.getElementById('cfg-outline').value = config.outline_url;
-            if(config.xui_url) document.getElementById('cfg-xui-url').value = config.xui_url;
-            if(config.xui_user) document.getElementById('cfg-xui-user').value = config.xui_user;
-            if(config.xui_pass) document.getElementById('cfg-xui-pass').value = config.xui_pass;
-        });
-
-        // Save Server Configs
-        document.getElementById('btn-save-cfg').addEventListener('click', () => {
-            const config = {
-                outline_url: document.getElementById('cfg-outline').value.trim(),
-                xui_url: document.getElementById('cfg-xui-url').value.trim(),
-                xui_user: document.getElementById('cfg-xui-user').value.trim(),
-                xui_pass: document.getElementById('cfg-xui-pass').value.trim()
-            };
-            socket.emit('admin_save_config', config);
-            const msg = document.getElementById('cfg-msg');
-            msg.classList.remove('hidden');
-            setTimeout(() => msg.classList.add('hidden'), 3000);
-        });
-
-        // Add New Account
+        // Add New Account Logic
         document.getElementById('btn-create-new').addEventListener('click', () => {
             const editorSec = document.getElementById('editor-section');
             document.querySelectorAll('#editor-section input[type="text"]:not(#auto-link-outline):not(#auto-link-vless):not(#auto-link-user), #editor-section input[type="number"], #editor-section input[type="date"]').forEach(inp => inp.value = "");
@@ -323,13 +306,13 @@
             statusMsg.classList.remove('hidden');
 
             document.getElementById('link-generator').classList.add('hidden');
-            setApiView('both');
+            setApiView('both'); // default view
             editorSec.classList.remove('hidden');
             setTimeout(() => { editorSec.classList.remove('opacity-0', 'translate-y-4'); }, 50);
             editorSec.scrollIntoView({ behavior: 'smooth' });
         });
 
-        // Fetch User
+        // Fetch User Data Logic via Socket.io
         document.getElementById('btn-fetch').addEventListener('click', () => {
             const searchId = document.getElementById('search-username').value.trim().toUpperCase(); 
             if(!searchId) return;
@@ -345,16 +328,16 @@
             socket.emit('admin_fetch_user', searchId);
         });
 
-        socket.on('admin_user_data', (res) => {
+        socket.on('admin_user_data', ({ id, exists, data }) => {
             const statusMsg = document.getElementById('status-msg');
             const editorSec = document.getElementById('editor-section');
+            const searchId = id;
 
-            if (res.exists) {
-                const data = res.data;
-                statusMsg.innerHTML = `<i class="fa-solid fa-check mr-2"></i> Loaded existing user: <b class="text-white">${res.id}</b>`;
+            if (exists) {
+                statusMsg.innerHTML = `<i class="fa-solid fa-check mr-2"></i> Loaded existing user: <b class="text-white">${searchId}</b>`;
                 statusMsg.className = "mt-4 text-sm bg-emerald-500/10 text-emerald-400 px-4 py-2 rounded-lg border border-emerald-500/20 inline-block";
                 
-                document.getElementById('admin-username').value = res.id;
+                document.getElementById('admin-username').value = searchId;
                 document.getElementById('user-display-name').value = data.displayName || ""; 
 
                 document.getElementById('out-key').value = data.outlineKey || ""; 
@@ -365,26 +348,23 @@
                 document.getElementById('vless-expire').value = data.vlessExpireDate || "";
                 
                 setApiView('both');
-                generateLinks(res.id);
+                
+                const baseUrl = window.location.origin + "/";
+                document.getElementById('auto-link-outline').value = baseUrl + "outline.html?id=" + searchId;
+                document.getElementById('auto-link-vless').value = baseUrl + "vless.html?id=" + searchId;
+                document.getElementById('auto-link-user').value = baseUrl + "user.html?id=" + searchId;
+                document.getElementById('link-generator').classList.remove('hidden');
                 
                 editorSec.classList.remove('hidden');
                 setTimeout(() => { editorSec.classList.remove('opacity-0', 'translate-y-4'); }, 50);
                 editorSec.scrollIntoView({ behavior: 'smooth' });
             } else {
-                statusMsg.innerHTML = `<i class="fa-solid fa-circle-xmark mr-2"></i> User ID <b class="text-white">${res.id}</b> not found! Use "Create New" instead.`;
+                statusMsg.innerHTML = `<i class="fa-solid fa-circle-xmark mr-2"></i> User ID <b class="text-white">${searchId}</b> not found! Use "Create New" instead.`;
                 statusMsg.className = "mt-4 text-sm bg-red-500/10 text-red-400 px-4 py-2 rounded-lg border border-red-500/20 inline-block";
             }
         });
 
-        function generateLinks(username) {
-            const baseUrl = window.location.origin + "/";
-            document.getElementById('auto-link-outline').value = baseUrl + "outline.html?id=" + username;
-            document.getElementById('auto-link-vless').value = baseUrl + "vless.html?id=" + username;
-            document.getElementById('auto-link-user').value = baseUrl + "user.html?id=" + username; // Note: Ensure you have user.html
-            document.getElementById('link-generator').classList.remove('hidden');
-        }
-
-        // Save User Data
+        // Save Data Logic via Socket.io
         document.getElementById('btn-save').addEventListener('click', () => {
             const username = document.getElementById('admin-username').value.trim().toUpperCase();
             if(!username) return alert("Please enter Login ID (User) first.");
@@ -392,7 +372,7 @@
             const btn = document.getElementById('btn-save'); 
             btn.innerHTML = '<i class="fa-solid fa-spinner fa-spin"></i> COMMITTING...';
 
-            const userData = {
+            const dataToSave = {
                 displayName: document.getElementById('user-display-name').value.trim(),
                 outlineKey: document.getElementById('out-key').value.trim(), 
                 outlineTotalGB: Number(document.getElementById('out-total').value) || 0, 
@@ -402,17 +382,22 @@
                 vlessExpireDate: document.getElementById('vless-expire').value || ""
             };
 
-            socket.emit('admin_save_user', { username, data: userData });
+            socket.emit('admin_save_user', { username: username, data: dataToSave });
         });
 
         socket.on('admin_save_success', () => {
-            const btn = document.getElementById('btn-save');
+            const btn = document.getElementById('btn-save'); 
             const username = document.getElementById('admin-username').value.trim().toUpperCase();
+            
             btn.innerHTML = '<i class="fa-solid fa-check-double"></i> SUCCESS'; 
             btn.classList.replace('from-emerald-600', 'from-indigo-600');
             btn.classList.replace('to-teal-600', 'to-blue-600');
             
-            generateLinks(username);
+            const baseUrl = window.location.origin + "/";
+            document.getElementById('auto-link-outline').value = baseUrl + "outline.html?id=" + username;
+            document.getElementById('auto-link-vless').value = baseUrl + "vless.html?id=" + username;
+            document.getElementById('auto-link-user').value = baseUrl + "user.html?id=" + username;
+            document.getElementById('link-generator').classList.remove('hidden');
 
             setTimeout(() => {
                 btn.innerHTML = '<i class="fa-solid fa-cloud-arrow-up"></i> SAVE & COMMIT CHANGES';
@@ -421,7 +406,64 @@
             }, 2500);
         });
 
-        // Copy buttons
+        // Config Save Logic
+        document.getElementById('btn-save-cfg').addEventListener('click', () => {
+            const config = {
+                outline_url: document.getElementById('cfg-outline').value.trim(),
+                xui_url: document.getElementById('cfg-xui-url').value.trim(),
+                xui_user: document.getElementById('cfg-xui-user').value.trim(),
+                xui_pass: document.getElementById('cfg-xui-pass').value.trim()
+            };
+            socket.emit('admin_save_config', config);
+            
+            const msg = document.getElementById('cfg-msg');
+            msg.classList.remove('hidden');
+            setTimeout(() => msg.classList.add('hidden'), 2000);
+        });
+
+        socket.on('admin_config_data', (config) => {
+            document.getElementById('cfg-outline').value = config.outline_url || '';
+            document.getElementById('cfg-xui-url').value = config.xui_url || '';
+            document.getElementById('cfg-xui-user').value = config.xui_user || '';
+            document.getElementById('cfg-xui-pass').value = config.xui_pass || '';
+        });
+
+        // Load Users Table
+        function loadAllUsers() {
+            document.getElementById('users-table-body').innerHTML = '<tr><td colspan="5" class="text-center text-gray-500 py-4">Loading data...</td></tr>';
+            socket.emit('admin_get_all_users');
+        }
+
+        socket.on('admin_all_users_data', (users) => {
+            const tbody = document.getElementById('users-table-body');
+            tbody.innerHTML = '';
+            
+            if(Object.keys(users).length === 0) {
+                tbody.innerHTML = '<tr><td colspan="5" class="text-center text-gray-500 py-4">No users found.</td></tr>';
+                return;
+            }
+
+            for(const [id, data] of Object.entries(users)) {
+                const tr = document.createElement('tr');
+                tr.innerHTML = `
+                    <td><strong>${id}</strong><br><span class="text-xs text-gray-500">${data.displayName || 'No Name'}</span></td>
+                    <td>${data.outlineUsedGB || 0} / ${data.outlineTotalGB || 0} GB<br><span class="text-xs text-gray-500">${data.outlineExpireDate || 'No Expiry'}</span></td>
+                    <td>${data.vlessUsedGB || 0} / ${data.vlessTotalGB || 0} GB<br><span class="text-xs text-gray-500">${data.vlessExpireDate || 'No Expiry'}</span></td>
+                    <td><span class="os-badge os-unknown"><i class="fa-solid fa-desktop"></i> ${data.deviceOS || 'Unknown'}</span></td>
+                    <td><button onclick="editUser('${id}')" class="bg-blue-600/20 text-blue-400 hover:bg-blue-600 hover:text-white px-3 py-1 rounded transition-colors"><i class="fa-solid fa-pen"></i></button></td>
+                `;
+                tbody.appendChild(tr);
+            }
+        });
+
+        document.getElementById('btn-refresh-list').addEventListener('click', loadAllUsers);
+        
+        window.editUser = function(userId) {
+            navManage.click();
+            document.getElementById('search-username').value = userId;
+            document.getElementById('btn-fetch').click();
+        };
+
         function setupCopyBtn(btnId, inputId, defaultColorClass) {
             document.getElementById(btnId).addEventListener('click', () => {
                 const linkInput = document.getElementById(inputId);
@@ -434,44 +476,13 @@
                 });
             });
         }
+
         setupCopyBtn('btn-copy-link-outline', 'auto-link-outline', 'bg-indigo-600');
         setupCopyBtn('btn-copy-link-vless', 'auto-link-vless', 'bg-cyan-600');
         setupCopyBtn('btn-copy-link-user', 'auto-link-user', 'bg-purple-600');
 
-        // Render User List
-        socket.on('admin_all_users_data', (usersMap) => {
-            const tbody = document.getElementById('users-table-body');
-            tbody.innerHTML = '';
-            const users = Object.entries(usersMap || {});
-            
-            if(users.length === 0) {
-                tbody.innerHTML = '<tr><td colspan="5" class="text-center text-gray-500 py-4">No users found.</td></tr>';
-                return;
-            }
-
-            users.forEach(([id, data]) => {
-                const tr = document.createElement('tr');
-                tr.innerHTML = `
-                    <td><b>${id}</b><br><span class="text-xs text-gray-500">${data.displayName || '-'}</span></td>
-                    <td>${data.outlineUsedGB || 0} / ${data.outlineTotalGB || 0} GB</td>
-                    <td>${data.vlessUsedGB || 0} / ${data.vlessTotalGB || 0} GB</td>
-                    <td><span class="os-badge os-unknown"><i class="fa-solid fa-desktop"></i> ${data.deviceOS || 'N/A'}</span></td>
-                    <td><button onclick="editUser('${id}')" class="bg-blue-600/20 text-blue-400 hover:bg-blue-600 hover:text-white px-3 py-1 rounded-md text-xs transition-colors border border-blue-500/30">Edit</button></td>
-                `;
-                tbody.appendChild(tr);
-            });
-        });
-
-        document.getElementById('btn-refresh-list').addEventListener('click', () => {
-            document.getElementById('users-table-body').innerHTML = '<tr><td colspan="5" class="text-center text-gray-500 py-4"><i class="fa-solid fa-spinner fa-spin"></i> Refreshing...</td></tr>';
-            socket.emit('admin_get_all_users');
-        });
-        
-        window.editUser = function(userId) {
-            navManage.click();
-            document.getElementById('search-username').value = userId;
-            document.getElementById('btn-fetch').click();
-        };
+        // Request config on start
+        socket.emit('admin_get_config');
     </script>
 </body>
 </html>
