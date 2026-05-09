@@ -8,10 +8,11 @@ const app = express();
 const server = http.createServer(app);
 const io = new Server(server);
 
-// Static file တွေအကုန်လုံးကို Serve လုပ်နိုင်ဖို့ (အရေးကြီးသည်)
+// Static files တွေအလုပ်လုပ်ဖို့ (Socket.io အပါအဝင်)
 app.use(express.static(__dirname));
 app.use(express.json());
 
+// Folder မခွဲထားတဲ့အတွက် လက်ရှိ Directory ထဲက HTML ဖိုင်တွေကို တိုက်ရိုက်ခေါ်ပေးမယ်
 app.get('/', (req, res) => res.sendFile(path.join(__dirname, 'admin.html')));
 app.get('/admin.html', (req, res) => res.sendFile(path.join(__dirname, 'admin.html')));
 app.get('/user.html', (req, res) => res.sendFile(path.join(__dirname, 'user.html')));
@@ -21,17 +22,18 @@ app.get('/vless.html', (req, res) => res.sendFile(path.join(__dirname, 'vless.ht
 const DB_FILE = './data.json';
 let db = { users: {}, admin_config: {} };
 
+// Database ဖတ်ခြင်း
 if (fs.existsSync(DB_FILE)) {
     db = JSON.parse(fs.readFileSync(DB_FILE));
 } else {
-    saveDB(); 
+    saveDB(); // မရှိရင် data.json အသစ်ဖန်တီးမယ်
 }
 
 function saveDB() {
     fs.writeFileSync(DB_FILE, JSON.stringify(db, null, 2));
 }
 
-// Python API Sync Webhooks
+// Python API Sync အတွက် Webhooks
 app.get('/api/sync-data', (req, res) => {
     res.json(db);
 });
@@ -53,10 +55,23 @@ app.post('/api/sync-update', (req, res) => {
     res.json({ success: true });
 });
 
-// Socket.io
+// Socket.io Real-time ချိတ်ဆက်မှုများ
 io.on('connection', (socket) => {
-    
-    // User Panel ချိတ်ဆက်မှု
+    // ---- [ User အပိုင်း ] ----
+    socket.on('user_login', ({ username, deviceOS }) => {
+        const user = db.users[username];
+        if (user) {
+            db.users[username].lastActive = new Date().toISOString();
+            db.users[username].deviceOS = deviceOS || user.deviceOS;
+            saveDB();
+            
+            socket.emit('user_login_response', { exists: true, username, data: db.users[username] });
+            socket.join(username); 
+        } else {
+            socket.emit('user_login_response', { exists: false });
+        }
+    });
+
     socket.on('join_user_room', ({ username, deviceOS }) => {
         socket.join(username);
         if (db.users[username]) {
@@ -68,9 +83,18 @@ io.on('connection', (socket) => {
         }
     });
 
-    // Admin Panel ချိတ်ဆက်မှု
+    socket.on('update_user_name', ({ username, displayName }) => {
+        if (db.users[username]) {
+            db.users[username].displayName = displayName;
+            saveDB();
+            io.to(username).emit('user_data_update', db.users[username]);
+            io.emit('admin_all_users_data', db.users);
+        }
+    });
+
+    // ---- [ Admin အပိုင်း ] ----
     socket.on('admin_get_config', () => {
-        socket.emit('admin_config_data', db.admin_config.server_api || {});
+        socket.emit('admin_config_data', db.admin_config?.server_api || {});
     });
 
     socket.on('admin_save_config', (config) => {
