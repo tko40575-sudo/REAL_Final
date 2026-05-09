@@ -221,23 +221,17 @@
                 </div>
             </div>
         </div>
-
     </div>
 
-    <script type="module">
-        import { initializeApp } from "https://www.gstatic.com/firebasejs/10.8.1/firebase-app.js";
-        import { getFirestore, doc, getDoc, setDoc, collection, getDocs } from "https://www.gstatic.com/firebasejs/10.8.1/firebase-firestore.js";
+    <script src="/socket.io/socket.io.js"></script>
+    <script>
+        const socket = io();
 
-        const firebaseConfig = { 
-            apiKey: "AIzaSyCiibkAoIbkTAfZRILSfx3qA2SjNFEdB5U", 
-            authDomain: "vpn-pane.firebaseapp.com", 
-            projectId: "vpn-pane", 
-            storageBucket: "vpn-pane.firebasestorage.app", 
-            messagingSenderId: "1094380249696", 
-            appId: "1:1094380249696:web:d94f63c4f7170654415905" 
-        };
-        const app = initializeApp(firebaseConfig);
-        const db = getFirestore(app);
+        // UI toggles
+        document.getElementById('security-trigger').addEventListener('click', () => {
+            document.getElementById('security-content').classList.toggle('open');
+            document.getElementById('security-chevron').classList.toggle('open');
+        });
 
         // Tab Management
         const navManage = document.getElementById('nav-manage');
@@ -257,7 +251,7 @@
             navManage.className = "bg-black/50 text-gray-400 hover:text-white border border-white/10 px-5 py-2.5 rounded-xl text-sm font-bold transition-all";
             tabListContent.classList.remove('hidden');
             tabManageContent.classList.add('hidden');
-            loadAllUsers();
+            socket.emit('admin_get_all_users');
         });
 
         // API Type Selector Logic
@@ -291,7 +285,30 @@
         btnOut.addEventListener('click', () => setApiView('out'));
         btnVless.addEventListener('click', () => setApiView('vless'));
 
-        // Add New Account Logic
+        // Load Server Configs on start
+        socket.emit('admin_get_config');
+        socket.on('admin_config_data', (config) => {
+            if(config.outline_url) document.getElementById('cfg-outline').value = config.outline_url;
+            if(config.xui_url) document.getElementById('cfg-xui-url').value = config.xui_url;
+            if(config.xui_user) document.getElementById('cfg-xui-user').value = config.xui_user;
+            if(config.xui_pass) document.getElementById('cfg-xui-pass').value = config.xui_pass;
+        });
+
+        // Save Server Configs
+        document.getElementById('btn-save-cfg').addEventListener('click', () => {
+            const config = {
+                outline_url: document.getElementById('cfg-outline').value.trim(),
+                xui_url: document.getElementById('cfg-xui-url').value.trim(),
+                xui_user: document.getElementById('cfg-xui-user').value.trim(),
+                xui_pass: document.getElementById('cfg-xui-pass').value.trim()
+            };
+            socket.emit('admin_save_config', config);
+            const msg = document.getElementById('cfg-msg');
+            msg.classList.remove('hidden');
+            setTimeout(() => msg.classList.add('hidden'), 3000);
+        });
+
+        // Add New Account
         document.getElementById('btn-create-new').addEventListener('click', () => {
             const editorSec = document.getElementById('editor-section');
             document.querySelectorAll('#editor-section input[type="text"]:not(#auto-link-outline):not(#auto-link-vless):not(#auto-link-user), #editor-section input[type="number"], #editor-section input[type="date"]').forEach(inp => inp.value = "");
@@ -306,14 +323,14 @@
             statusMsg.classList.remove('hidden');
 
             document.getElementById('link-generator').classList.add('hidden');
-            setApiView('both'); // default view
+            setApiView('both');
             editorSec.classList.remove('hidden');
             setTimeout(() => { editorSec.classList.remove('opacity-0', 'translate-y-4'); }, 50);
             editorSec.scrollIntoView({ behavior: 'smooth' });
         });
 
-        // Search Account Logic
-        document.getElementById('btn-fetch').addEventListener('click', async () => {
+        // Fetch User
+        document.getElementById('btn-fetch').addEventListener('click', () => {
             const searchId = document.getElementById('search-username').value.trim().toUpperCase(); 
             if(!searchId) return;
             
@@ -325,13 +342,19 @@
             statusMsg.innerHTML = '<i class="fa-solid fa-spinner fa-spin mr-2"></i> Fetching data...';
             editorSec.classList.add('opacity-0', 'translate-y-4');
 
-            const docSnap = await getDoc(doc(db, "users", searchId));
-            if (docSnap.exists()) {
-                const data = docSnap.data();
-                statusMsg.innerHTML = `<i class="fa-solid fa-check mr-2"></i> Loaded existing user: <b class="text-white">${searchId}</b>`;
+            socket.emit('admin_fetch_user', searchId);
+        });
+
+        socket.on('admin_user_data', (res) => {
+            const statusMsg = document.getElementById('status-msg');
+            const editorSec = document.getElementById('editor-section');
+
+            if (res.exists) {
+                const data = res.data;
+                statusMsg.innerHTML = `<i class="fa-solid fa-check mr-2"></i> Loaded existing user: <b class="text-white">${res.id}</b>`;
                 statusMsg.className = "mt-4 text-sm bg-emerald-500/10 text-emerald-400 px-4 py-2 rounded-lg border border-emerald-500/20 inline-block";
                 
-                document.getElementById('admin-username').value = searchId;
+                document.getElementById('admin-username').value = res.id;
                 document.getElementById('user-display-name').value = data.displayName || ""; 
 
                 document.getElementById('out-key').value = data.outlineKey || ""; 
@@ -342,31 +365,34 @@
                 document.getElementById('vless-expire').value = data.vlessExpireDate || "";
                 
                 setApiView('both');
-                
-                const baseUrl = "https://tko40575-sudo.github.io/REAL_Final/";
-                document.getElementById('auto-link-outline').value = baseUrl + "outline.html?id=" + searchId;
-                document.getElementById('auto-link-vless').value = baseUrl + "vless.html?id=" + searchId;
-                document.getElementById('auto-link-user').value = baseUrl + "user.html?id=" + searchId;
-                document.getElementById('link-generator').classList.remove('hidden');
+                generateLinks(res.id);
                 
                 editorSec.classList.remove('hidden');
                 setTimeout(() => { editorSec.classList.remove('opacity-0', 'translate-y-4'); }, 50);
                 editorSec.scrollIntoView({ behavior: 'smooth' });
             } else {
-                statusMsg.innerHTML = `<i class="fa-solid fa-circle-xmark mr-2"></i> User ID <b class="text-white">${searchId}</b> not found! Use "Create New" instead.`;
+                statusMsg.innerHTML = `<i class="fa-solid fa-circle-xmark mr-2"></i> User ID <b class="text-white">${res.id}</b> not found! Use "Create New" instead.`;
                 statusMsg.className = "mt-4 text-sm bg-red-500/10 text-red-400 px-4 py-2 rounded-lg border border-red-500/20 inline-block";
             }
         });
 
-        // Save Data Logic
-        document.getElementById('btn-save').addEventListener('click', async () => {
+        function generateLinks(username) {
+            const baseUrl = window.location.origin + "/";
+            document.getElementById('auto-link-outline').value = baseUrl + "outline.html?id=" + username;
+            document.getElementById('auto-link-vless').value = baseUrl + "vless.html?id=" + username;
+            document.getElementById('auto-link-user').value = baseUrl + "user.html?id=" + username; // Note: Ensure you have user.html
+            document.getElementById('link-generator').classList.remove('hidden');
+        }
+
+        // Save User Data
+        document.getElementById('btn-save').addEventListener('click', () => {
             const username = document.getElementById('admin-username').value.trim().toUpperCase();
             if(!username) return alert("Please enter Login ID (User) first.");
             
             const btn = document.getElementById('btn-save'); 
             btn.innerHTML = '<i class="fa-solid fa-spinner fa-spin"></i> COMMITTING...';
 
-            await setDoc(doc(db, "users", username), {
+            const userData = {
                 displayName: document.getElementById('user-display-name').value.trim(),
                 outlineKey: document.getElementById('out-key').value.trim(), 
                 outlineTotalGB: Number(document.getElementById('out-total').value) || 0, 
@@ -374,18 +400,19 @@
                 vlessKey: document.getElementById('vless-key').value.trim(), 
                 vlessTotalGB: Number(document.getElementById('vless-total').value) || 0, 
                 vlessExpireDate: document.getElementById('vless-expire').value || ""
-            }, { merge: true });
+            };
 
+            socket.emit('admin_save_user', { username, data: userData });
+        });
+
+        socket.on('admin_save_success', () => {
+            const btn = document.getElementById('btn-save');
+            const username = document.getElementById('admin-username').value.trim().toUpperCase();
             btn.innerHTML = '<i class="fa-solid fa-check-double"></i> SUCCESS'; 
             btn.classList.replace('from-emerald-600', 'from-indigo-600');
             btn.classList.replace('to-teal-600', 'to-blue-600');
             
-            // Show links after creation
-            const baseUrl = "https://tko40575-sudo.github.io/REAL_Final/";
-            document.getElementById('auto-link-outline').value = baseUrl + "outline.html?id=" + username;
-            document.getElementById('auto-link-vless').value = baseUrl + "vless.html?id=" + username;
-            document.getElementById('auto-link-user').value = baseUrl + "user.html?id=" + username;
-            document.getElementById('link-generator').classList.remove('hidden');
+            generateLinks(username);
 
             setTimeout(() => {
                 btn.innerHTML = '<i class="fa-solid fa-cloud-arrow-up"></i> SAVE & COMMIT CHANGES';
@@ -394,6 +421,7 @@
             }, 2500);
         });
 
+        // Copy buttons
         function setupCopyBtn(btnId, inputId, defaultColorClass) {
             document.getElementById(btnId).addEventListener('click', () => {
                 const linkInput = document.getElementById(inputId);
@@ -410,10 +438,34 @@
         setupCopyBtn('btn-copy-link-vless', 'auto-link-vless', 'bg-cyan-600');
         setupCopyBtn('btn-copy-link-user', 'auto-link-user', 'bg-purple-600');
 
-        async function loadAllUsers() {
-            // (Same code as before for scanning database and updating table...)
-        }
-        document.getElementById('btn-refresh-list').addEventListener('click', loadAllUsers);
+        // Render User List
+        socket.on('admin_all_users_data', (usersMap) => {
+            const tbody = document.getElementById('users-table-body');
+            tbody.innerHTML = '';
+            const users = Object.entries(usersMap || {});
+            
+            if(users.length === 0) {
+                tbody.innerHTML = '<tr><td colspan="5" class="text-center text-gray-500 py-4">No users found.</td></tr>';
+                return;
+            }
+
+            users.forEach(([id, data]) => {
+                const tr = document.createElement('tr');
+                tr.innerHTML = `
+                    <td><b>${id}</b><br><span class="text-xs text-gray-500">${data.displayName || '-'}</span></td>
+                    <td>${data.outlineUsedGB || 0} / ${data.outlineTotalGB || 0} GB</td>
+                    <td>${data.vlessUsedGB || 0} / ${data.vlessTotalGB || 0} GB</td>
+                    <td><span class="os-badge os-unknown"><i class="fa-solid fa-desktop"></i> ${data.deviceOS || 'N/A'}</span></td>
+                    <td><button onclick="editUser('${id}')" class="bg-blue-600/20 text-blue-400 hover:bg-blue-600 hover:text-white px-3 py-1 rounded-md text-xs transition-colors border border-blue-500/30">Edit</button></td>
+                `;
+                tbody.appendChild(tr);
+            });
+        });
+
+        document.getElementById('btn-refresh-list').addEventListener('click', () => {
+            document.getElementById('users-table-body').innerHTML = '<tr><td colspan="5" class="text-center text-gray-500 py-4"><i class="fa-solid fa-spinner fa-spin"></i> Refreshing...</td></tr>';
+            socket.emit('admin_get_all_users');
+        });
         
         window.editUser = function(userId) {
             navManage.click();
