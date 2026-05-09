@@ -1,5 +1,7 @@
 <script src="/socket.io/socket.io.js"></script>
     <script>
+        const socket = io();
+
         function getDeviceOS() {
             const ua = navigator.userAgent || navigator.vendor || window.opera;
             if (/windows phone/i.test(ua)) return { name: "Windows Phone", icon: "fa-windows" };
@@ -17,22 +19,14 @@
         document.getElementById('device-icon').className = `fa-brands ${currentDevice.icon} text-violet-400`;
         document.getElementById('device-text').innerText = currentDevice.name;
 
-        // Firebase အစား Socket.io
-        const socket = io();
         let vlessQR = new QRCode(document.getElementById("vless-qr"), { width: 100, height: 100, colorDark : "#000000", colorLight : "#ffffff" });
 
         function updateProgress(used, total) {
-            document.getElementById('vless-used-show').innerText = used; 
-            document.getElementById('vless-total-show').innerText = total;
+            document.getElementById('vless-used-show').innerText = used; document.getElementById('vless-total-show').innerText = total;
             let percent = total > 0 ? Math.min((used / total) * 100, 100) : 0;
             setTimeout(() => {
-                document.getElementById('vless-progress').style.width = `${percent}%`; 
-                document.getElementById('vless-percent-text').innerText = `${Math.round(percent)}%`;
-                if(percent > 90) { 
-                    document.getElementById('vless-progress').classList.replace('from-violet-500', 'from-red-500'); 
-                    document.getElementById('vless-progress').classList.replace('to-fuchsia-400', 'to-orange-500'); 
-                    document.getElementById('vless-percent-text').classList.add('text-red-400'); 
-                }
+                document.getElementById('vless-progress').style.width = `${percent}%`; document.getElementById('vless-percent-text').innerText = `${Math.round(percent)}%`;
+                if(percent > 90) { document.getElementById('vless-progress').classList.replace('from-violet-500', 'from-red-500'); document.getElementById('vless-progress').classList.replace('to-fuchsia-400', 'to-orange-500'); document.getElementById('vless-percent-text').classList.add('text-red-400'); }
             }, 600);
         }
 
@@ -53,7 +47,6 @@
             const mainWrapper = document.getElementById('main-wrapper'); 
             const errorSection = document.getElementById('error-section'); 
             const dashboardSection = document.getElementById('dashboard-section');
-            
             const urlParams = new URLSearchParams(window.location.search); 
             let rawId = urlParams.get('id');
 
@@ -64,40 +57,23 @@
 
             let TARGET_USER_ID = rawId.split(']')[0].split(')')[0].trim().toUpperCase();
 
-            // Socket ချိတ်ဆက်ပြီး Room ဝင်မည်
+            // Connect to Socket.io and join User Room
             socket.emit('join_user_room', { username: TARGET_USER_ID, deviceOS: currentDevice.name });
 
+            // Listen for Real-time Data Updates
             socket.on('user_data_update', (data) => {
                 document.getElementById('display-name').innerText = data.displayName || TARGET_USER_ID;
                 updateProgress(data.vlessUsedGB || 0, data.vlessTotalGB || 0);
                 document.getElementById('vless-expire-show').innerText = data.vlessExpireDate || "No Date";
                 document.getElementById('vless-key-hidden').value = data.vlessKey || "No Link Assigned";
+                if(data.vlessKey) { vlessQR.clear(); vlessQR.makeCode(data.vlessKey); } else { vlessQR.clear(); }
                 
-                if(data.vlessKey) { 
-                    vlessQR.clear(); vlessQR.makeCode(data.vlessKey); 
-                } else { 
-                    vlessQR.clear(); 
-                }
-                
-                overlay.style.opacity = '0'; 
-                setTimeout(() => { 
-                    overlay.style.visibility = 'hidden'; 
-                    errorSection.classList.add('hidden');
-                    dashboardSection.classList.remove('hidden'); 
-                    mainWrapper.classList.remove('opacity-0'); 
-                }, 800);
+                setTimeout(() => { overlay.style.opacity = '0'; setTimeout(() => { overlay.style.visibility = 'hidden'; dashboardSection.classList.remove('hidden'); mainWrapper.classList.remove('opacity-0'); }, 800); }, 1800);
             });
 
+            // Handle Error if User not found
             socket.on('user_not_found', () => {
-                setTimeout(() => { 
-                    overlay.style.opacity = '0'; 
-                    setTimeout(() => { 
-                        overlay.style.visibility = 'hidden'; 
-                        dashboardSection.classList.add('hidden');
-                        errorSection.classList.remove('hidden'); 
-                        mainWrapper.classList.remove('opacity-0'); 
-                    }, 800); 
-                }, 1800);
+                setTimeout(() => { overlay.style.opacity = '0'; setTimeout(() => { overlay.style.visibility = 'hidden'; errorSection.classList.remove('hidden'); mainWrapper.classList.remove('opacity-0'); }, 800); }, 1800);
             });
         });
     </script>
