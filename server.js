@@ -2,12 +2,19 @@ const express = require('express');
 const http = require('http');
 const { Server } = require('socket.io');
 const fs = require('fs');
+const path = require('path');
 
 const app = express();
 const server = http.createServer(app);
 const io = new Server(server);
 
-app.use(express.static('public')); // သင့် HTML ဖိုင်များကို public folder ထဲထည့်ပါ
+// Folder မခွဲထားတဲ့အတွက် လက်ရှိ Directory ထဲက HTML ဖိုင်တွေကို တိုက်ရိုက်ခေါ်ပေးမယ်
+app.get('/', (req, res) => res.sendFile(path.join(__dirname, 'admin.html')));
+app.get('/admin.html', (req, res) => res.sendFile(path.join(__dirname, 'admin.html')));
+app.get('/user.html', (req, res) => res.sendFile(path.join(__dirname, 'user.html')));
+app.get('/outline.html', (req, res) => res.sendFile(path.join(__dirname, 'outline.html')));
+app.get('/vless.html', (req, res) => res.sendFile(path.join(__dirname, 'vless.html')));
+
 app.use(express.json());
 
 const DB_FILE = './data.json';
@@ -16,14 +23,15 @@ let db = { users: {}, admin_config: {} };
 // Database ဖတ်ခြင်း
 if (fs.existsSync(DB_FILE)) {
     db = JSON.parse(fs.readFileSync(DB_FILE));
+} else {
+    saveDB(); // မရှိရင် data.json အသစ်ဖန်တီးမယ်
 }
 
-// Database သိမ်းခြင်း
 function saveDB() {
     fs.writeFileSync(DB_FILE, JSON.stringify(db, null, 2));
 }
 
-// Python API Sync အတွက် Webhook
+// Python API Sync အတွက် Webhooks
 app.get('/api/sync-data', (req, res) => {
     res.json(db);
 });
@@ -34,7 +42,7 @@ app.post('/api/sync-update', (req, res) => {
     for (const [userId, fields] of Object.entries(update_fields)) {
         if (db.users[userId]) {
             db.users[userId] = { ...db.users[userId], ...fields };
-            io.to(userId).emit('user_data_update', db.users[userId]); // User ဆီ ချက်ချင်း Update လှမ်းပို့ပါမယ်
+            io.to(userId).emit('user_data_update', db.users[userId]); 
             changed = true;
         }
     }
@@ -56,7 +64,7 @@ io.on('connection', (socket) => {
             saveDB();
             
             socket.emit('user_login_response', { exists: true, username, data: db.users[username] });
-            socket.join(username); // အချိန်ပြည့် Update ရဖို့ Room ထဲဝင်ပါမယ်
+            socket.join(username); 
         } else {
             socket.emit('user_login_response', { exists: false });
         }
@@ -110,4 +118,4 @@ io.on('connection', (socket) => {
     });
 });
 
-server.listen(3000, () => console.log('🚀 Gateway & WebSocket Server running on port 3000'));
+server.listen(3000, () => console.log('🚀 Gateway Server running on port 3000'));
