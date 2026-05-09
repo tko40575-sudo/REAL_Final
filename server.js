@@ -1,121 +1,95 @@
 const express = require('express');
-const http = require('http');
-const { Server } = require('socket.io');
 const fs = require('fs');
 const path = require('path');
+const session = require('express-session');
+const bodyParser = require('body-parser');
 
 const app = express();
-const server = http.createServer(app);
-const io = new Server(server);
+const PORT = 3000;
 
-// Folder မခွဲထားတဲ့အတွက် လက်ရှိ Directory ထဲက HTML ဖိုင်တွေကို တိုက်ရိုက်ခေါ်ပေးမယ်
-app.get('/', (req, res) => res.sendFile(path.join(__dirname, 'admin.html')));
-app.get('/admin.html', (req, res) => res.sendFile(path.join(__dirname, 'admin.html')));
-app.get('/user.html', (req, res) => res.sendFile(path.join(__dirname, 'user.html')));
-app.get('/outline.html', (req, res) => res.sendFile(path.join(__dirname, 'outline.html')));
-app.get('/vless.html', (req, res) => res.sendFile(path.join(__dirname, 'vless.html')));
+// Middleware များ
+app.use(bodyParser.json());
+app.use(bodyParser.urlencoded({ extended: true }));
+app.use(express.static('public')); // Frontend ဖိုင်များအတွက်
+app.use(session({
+    secret: 'mock-bank-secure-key',
+    resave: false,
+    saveUninitialized: true
+}));
 
-app.use(express.json());
+const DB_FILE = './users.json';
 
-const DB_FILE = './data.json';
-let db = { users: {}, admin_config: {} };
+// User များကို ဖတ်ရန်/သိမ်းရန် Function များ
+const getUsers = () => JSON.parse(fs.readFileSync(DB_FILE));
+const saveUsers = (users) => fs.writeFileSync(DB_FILE, JSON.stringify(users, null, 2));
 
-// Database ဖတ်ခြင်း
-if (fs.existsSync(DB_FILE)) {
-    db = JSON.parse(fs.readFileSync(DB_FILE));
-} else {
-    saveDB(); // မရှိရင် data.json အသစ်ဖန်တီးမယ်
-}
+// ၁။ အကောင့်အသစ်ဖွင့်ခြင်း (Registration)
+app.post('/api/register', (req, res) => {
+    const { username, password, cardNumber, securityKey, expireDate } = req.body;
+    const users = getUsers();
 
-function saveDB() {
-    fs.writeFileSync(DB_FILE, JSON.stringify(db, null, 2));
-}
+    if (users.find(u => u.username === username || u.cardNumber === cardNumber)) {
+        return res.status(400).json({ error: 'Username or Card Number already exists!' });
+    }
 
-// Python API Sync အတွက် Webhooks
-app.get('/api/sync-data', (req, res) => {
-    res.json(db);
+    // Dummy အကောင့်တစ်ခု ဖန်တီးခြင်း (လက်ကျန်ငွေနှင့် မှတ်တမ်းအတုများ ပါဝင်သည်)
+    const newUser = {
+        id: Date.now().toString(),
+        username,
+        password,
+        cardNumber,
+        securityKey,
+        expireDate,
+        balance: Math.floor(Math.random() * 5000) + 1000, // $1000 မှ $6000 ကြား
+        transactions: [
+            { date: new Date().toLocaleDateString(), description: 'Initial Deposit', amount: 3000, type: 'credit' },
+            { date: new Date().toLocaleDateString(), description: 'Netflix Subscription', amount: -15.99, type: 'debit' },
+            { date: new Date().toLocaleDateString(), description: 'Amazon Shopping', amount: -120.50, type: 'debit' }
+        ]
+    };
+
+    users.push(newUser);
+    saveUsers(users);
+    res.json({ success: true, message: 'Account created successfully!' });
 });
 
-app.post('/api/sync-update', (req, res) => {
-    const { update_fields } = req.body;
-    let changed = false;
-    for (const [userId, fields] of Object.entries(update_fields)) {
-        if (db.users[userId]) {
-            db.users[userId] = { ...db.users[userId], ...fields };
-            io.to(userId).emit('user_data_update', db.users[userId]); 
-            changed = true;
-        }
+// ၂။ အကောင့်ဝင်ခြင်း (Login)
+app.post('/api/login', (req, res) => {
+    const { username, password, cardNumber } = req.body;
+    const users = getUsers();
+
+    // Username, Password နဲ့ Card Number ၃ ခုလုံး မှန်ကန်မှုစစ်ဆေးခြင်း
+    const user = users.find(u => u.username === username && u.password === password && u.cardNumber === cardNumber);
+
+    if (user) {
+        req.session.userId = user.id;
+        res.json({ success: true });
+    } else {
+        res.status(401).json({ error: 'Invalid credentials! Please check your details.' });
     }
-    if (changed) {
-        saveDB();
-        io.emit('admin_all_users_data', db.users);
+});
+
+// ၃။ အကောင့်အချက်အလက် ဆွဲယူခြင်း (Dashboard အတွက်)
+app.get('/api/userdata', (req, res) => {
+    if (!req.session.userId) return res.status(401).json({ error: 'Unauthorized' });
+    
+    const users = getUsers();
+    const user = users.find(u => u.id === req.session.userId);
+    
+    if (user) {
+        const { password, securityKey, ...safeUser } = user; // လုံခြုံရေးအရ Password များကို ဖျောက်ထားသည်
+        res.json(safeUser);
+    } else {
+        res.status(404).json({ error: 'User not found' });
     }
+});
+
+// ၄။ အကောင့်ထွက်ခြင်း (Logout)
+app.post('/api/logout', (req, res) => {
+    req.session.destroy();
     res.json({ success: true });
 });
 
-// Socket.io Real-time ချိတ်ဆက်မှုများ
-io.on('connection', (socket) => {
-    // ---- [ User အပိုင်း ] ----
-    socket.on('user_login', ({ username, deviceOS }) => {
-        const user = db.users[username];
-        if (user) {
-            db.users[username].lastActive = new Date().toISOString();
-            db.users[username].deviceOS = deviceOS || user.deviceOS;
-            saveDB();
-            
-            socket.emit('user_login_response', { exists: true, username, data: db.users[username] });
-            socket.join(username); 
-        } else {
-            socket.emit('user_login_response', { exists: false });
-        }
-    });
-
-    socket.on('join_user_room', ({ username, deviceOS }) => {
-        socket.join(username);
-        if (db.users[username]) {
-            if(deviceOS) db.users[username].deviceOS = deviceOS;
-            saveDB();
-            socket.emit('user_data_update', db.users[username]);
-        } else {
-            socket.emit('user_not_found');
-        }
-    });
-
-    socket.on('update_user_name', ({ username, displayName }) => {
-        if (db.users[username]) {
-            db.users[username].displayName = displayName;
-            saveDB();
-            io.to(username).emit('user_data_update', db.users[username]);
-            io.emit('admin_all_users_data', db.users);
-        }
-    });
-
-    // ---- [ Admin အပိုင်း ] ----
-    socket.on('admin_get_config', () => {
-        socket.emit('admin_config_data', db.admin_config.server_api || {});
-    });
-
-    socket.on('admin_save_config', (config) => {
-        db.admin_config.server_api = config;
-        saveDB();
-    });
-
-    socket.on('admin_fetch_user', (username) => {
-        const data = db.users[username];
-        socket.emit('admin_user_data', { id: username, exists: !!data, data: data || {} });
-    });
-
-    socket.on('admin_save_user', ({ username, data }) => {
-        db.users[username] = { ...db.users[username], ...data };
-        saveDB();
-        socket.emit('admin_save_success');
-        io.to(username).emit('user_data_update', db.users[username]); 
-        io.emit('admin_all_users_data', db.users); 
-    });
-
-    socket.on('admin_get_all_users', () => {
-        socket.emit('admin_all_users_data', db.users);
-    });
+app.listen(PORT, () => {
+    console.log(`🚀 Mock Bank Server is running on http://localhost:${PORT}`);
 });
-
-server.listen(3000, () => console.log('🚀 Gateway Server running on port 3000'));
